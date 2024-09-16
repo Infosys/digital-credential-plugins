@@ -61,13 +61,15 @@ public class MockDataProviderPlugin implements MockDataProviderPluginInterface {
     @Value("#{${mosip.certify.mock.vciplugin.vc-credential-contexts:{'https://www.w3.org/2018/credentials/v1','https://schema.org/'}}}")
     private List<String> vcCredentialContexts;
 
+    private static final String ACCESS_TOKEN_HASH = "accessTokenHash";
+
     public static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     public static final String CERTIFY_SERVICE_APP_ID = "CERTIFY_SERVICE";
 
     @Override
-    public Map<String, Object> fetchJSONFromPlugin(String accessTokenHash) {
-        OIDCTransaction transaction = getUserInfoTransaction(accessTokenHash);
+    public Map<String, Object> fetchJSONFromPlugin(Map<String, Object> identityDetails) {
+        OIDCTransaction transaction = getUserInfoTransaction(identityDetails.get(ACCESS_TOKEN_HASH).toString());
         Map<String, Object> formattedMap = null;
         try{
             formattedMap = getIndividualData(transaction);
@@ -80,7 +82,7 @@ public class MockDataProviderPlugin implements MockDataProviderPluginInterface {
         verCredJsonObject.put("type", Arrays.asList("VerifiableCredential", "MockVerifiableCredential"));
         verCredJsonObject.put("id", "urn:uuid:3978344f-8596-4c3a-a978-8fcaba3903c5");
         verCredJsonObject.put("issuer", "did:example:123456789");
-        verCredJsonObject.put("issuanceDate", getUTCDateTime());
+        verCredJsonObject.put("validFrom", getUTCDateTime());
         verCredJsonObject.put("credentialSubject", formattedMap);
 
         return verCredJsonObject;
