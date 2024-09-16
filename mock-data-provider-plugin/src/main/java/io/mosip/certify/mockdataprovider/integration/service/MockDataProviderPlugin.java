@@ -2,6 +2,7 @@ package io.mosip.certify.mockdataprovider.integration.service;
 
 
 import io.mosip.certify.core.exception.CertifyException;
+import io.mosip.certify.mockdataprovider.integration.spi.MockDataProviderPluginInterface;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant;
@@ -28,7 +29,7 @@ import java.util.*;
 
 @Component
 @Slf4j
-public class MockDataProviderPlugin {
+public class MockDataProviderPlugin implements MockDataProviderPluginInterface {
     private static final String AES_CIPHER_FAILED = "aes_cipher_failed";
     private static final String NO_UNIQUE_ALIAS = "no_unique_alias";
     private static final String USERINFO_CACHE = "userinfo";
@@ -64,8 +65,8 @@ public class MockDataProviderPlugin {
 
     public static final String CERTIFY_SERVICE_APP_ID = "CERTIFY_SERVICE";
 
-    private Map<String, Object> buildUniformJSON(String accessTokenHash)
-            throws IOException, GeneralSecurityException, URISyntaxException {
+    @Override
+    public Map<String, Object> fetchJSONFromPlugin(String accessTokenHash) {
         OIDCTransaction transaction = getUserInfoTransaction(accessTokenHash);
         Map<String, Object> formattedMap = null;
         try{
