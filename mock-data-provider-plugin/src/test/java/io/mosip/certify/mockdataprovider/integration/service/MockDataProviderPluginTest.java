@@ -1,5 +1,6 @@
 package io.mosip.certify.mockdataprovider.integration.service;
 
+import io.mosip.certify.api.exception.DataProviderExchangeException;
 import io.mosip.certify.api.exception.VCIExchangeException;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import org.junit.Assert;
@@ -51,8 +52,8 @@ public class MockDataProviderPluginTest {
     }
 
     @Test
-    public void getJSONData() throws VCIExchangeException {
-        Map<String, Object> jsonData = mockDataProviderPlugin.fetchJSONFromPlugin(Map.of("accessTokenHash","ACCESS_TOKEN_HASH","client_id","CLIENT_ID"));
+    public void getJSONData() throws DataProviderExchangeException {
+        Map<String, Object> jsonData = mockDataProviderPlugin.fetchData(Map.of("accessTokenHash","ACCESS_TOKEN_HASH","client_id","CLIENT_ID"));
         Assert.assertNotNull(jsonData);
         Assert.assertNotNull(jsonData.get("type"));
         List<String> expectedType = Arrays.asList("VerifiableCredential", "MockVerifiableCredential");

@@ -1,14 +1,14 @@
 package io.mosip.certify.mockdataprovider.integration.service;
 
 
+import io.mosip.certify.api.exception.DataProviderExchangeException;
+import io.mosip.certify.api.spi.DataProviderPlugin;
 import io.mosip.certify.core.exception.CertifyException;
-import io.mosip.certify.mockdataprovider.integration.spi.MockDataProviderPluginInterface;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
-import io.mosip.kernel.signature.service.SignatureService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,9 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Cipher;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -29,7 +26,7 @@ import java.util.*;
 
 @Component
 @Slf4j
-public class MockDataProviderPlugin implements MockDataProviderPluginInterface {
+public class MockDataProviderPlugin implements DataProviderPlugin {
     private static final String AES_CIPHER_FAILED = "aes_cipher_failed";
     private static final String NO_UNIQUE_ALIAS = "no_unique_alias";
     private static final String USERINFO_CACHE = "userinfo";
@@ -68,12 +65,12 @@ public class MockDataProviderPlugin implements MockDataProviderPluginInterface {
     public static final String CERTIFY_SERVICE_APP_ID = "CERTIFY_SERVICE";
 
     @Override
-    public Map<String, Object> fetchJSONFromPlugin(Map<String, Object> identityDetails) {
+    public Map<String, Object> fetchData(Map<String, Object> identityDetails) throws DataProviderExchangeException {
         OIDCTransaction transaction = getUserInfoTransaction(identityDetails.get(ACCESS_TOKEN_HASH).toString());
         Map<String, Object> formattedMap = null;
-        try{
+        try {
             formattedMap = getIndividualData(transaction);
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Unable to get KYC exchange data from MOCK", e);
         }
 
@@ -88,16 +85,16 @@ public class MockDataProviderPlugin implements MockDataProviderPluginInterface {
         return verCredJsonObject;
     }
 
-    private Map<String, Object> getIndividualData(OIDCTransaction transaction){
+    private Map<String, Object> getIndividualData(OIDCTransaction transaction) {
         String individualId = getIndividualId(transaction);
-        if (individualId!=null){
+        if (individualId != null) {
             Map<String, Object> res = new RestTemplate().getForObject(
-                    getIdentityUrl+"/"+individualId,
+                    getIdentityUrl + "/" + individualId,
                     HashMap.class);
-            res = (Map<String, Object>)res.get("response");
+            res = (Map<String, Object>) res.get("response");
             Map<String, Object> ret = new HashMap<>();
             ret.put("vcVer", "VC-V1");
-            ret.put("id", getIdentityUrl+"/"+individualId);
+            ret.put("id", getIdentityUrl + "/" + individualId);
             ret.put("UIN", individualId);
             ret.put("name", res.get("name"));
             ret.put("fullName", res.get("fullName"));
@@ -117,7 +114,7 @@ public class MockDataProviderPlugin implements MockDataProviderPluginInterface {
     }
 
     protected String getIndividualId(OIDCTransaction transaction) {
-        if(!storeIndividualId)
+        if (!storeIndividualId)
             return null;
         return secureIndividualId ? decryptIndividualId(transaction.getIndividualId()) : transaction.getIndividualId();
     }
@@ -128,7 +125,7 @@ public class MockDataProviderPlugin implements MockDataProviderPluginInterface {
             byte[] decodedBytes = Base64.getUrlDecoder().decode(encryptedIndividualId);
             cipher.init(Cipher.DECRYPT_MODE, getSecretKeyFromHSM());
             return new String(cipher.doFinal(decodedBytes, 0, decodedBytes.length));
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Error Cipher Operations of provided secret data.", e);
             throw new CertifyException(AES_CIPHER_FAILED);
         }
@@ -145,7 +142,7 @@ public class MockDataProviderPlugin implements MockDataProviderPluginInterface {
     private String getKeyAlias(String keyAppId, String keyRefId) {
         Map<String, List<KeyAlias>> keyAliasMap = dbHelper.getKeyAliases(keyAppId, keyRefId, LocalDateTime.now(ZoneOffset.UTC));
         List<KeyAlias> currentKeyAliases = keyAliasMap.get(KeymanagerConstant.CURRENTKEYALIAS);
-        if (!currentKeyAliases.isEmpty() && currentKeyAliases.size() == 1) {
+        if (currentKeyAliases != null && currentKeyAliases.size() == 1) {
             return currentKeyAliases.get(0).getAlias();
         }
         log.error("CurrentKeyAlias is not unique. KeyAlias count: {}", currentKeyAliases.size());
