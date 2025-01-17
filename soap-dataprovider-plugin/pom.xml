@@ -33,18 +33,20 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>21</java.version>
-    <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
-    <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+    <java.version>11</java.version>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+    <maven-compiler-plugin.source>11</maven-compiler-plugin.source>
+    <maven-compiler-plugin.target>11</maven-compiler-plugin.target>
+    <maven-compiler-plugin.version>2.4</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
     <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
     <maven-source-plugin>2.2.1</maven-source-plugin>
-    <nexus-staging-maven-plugin>6.1.0</nexus-staging-maven-plugin>
+    <nexus-staging-maven-plugin>1.6.7</nexus-staging-maven-plugin>
     <git-commit-id-plugin.version>3.0.1</git-commit-id-plugin.version>
-    <maven.jacoco.version>0.8.11</maven.jacoco.version>
-    <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
+    <maven.jacoco.version>0.8.5</maven.jacoco.version>
+    <maven-javadoc-plugin.version>3.3.1</maven-javadoc-plugin.version>
   </properties>
 
   <dependencies>
@@ -77,9 +79,14 @@
       <version>2.0.12</version>
     </dependency>
 <!--    <dependency>-->
-<!--      <groupId>jakarta.persistence</groupId>-->
-<!--      <artifactId>jakarta.persistence-api</artifactId>-->
-<!--      <version>3.1.0</version>-->
+<!--      <groupId>org.springframework.ws</groupId>-->
+<!--      <artifactId>spring-ws-core</artifactId>-->
+<!--      <version>4.0.11</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.springframework.ws</groupId>-->
+<!--      <artifactId>spring-ws-support</artifactId>-->
+<!--      <version>4.0.7</version>-->
 <!--    </dependency>-->
 <!--    <dependency>-->
 <!--      <groupId>jakarta.xml.ws</groupId>-->
@@ -87,25 +94,15 @@
 <!--      <version>4.0.2</version>-->
 <!--    </dependency>-->
     <dependency>
-      <groupId>org.springframework.ws</groupId>
-      <artifactId>spring-ws-core</artifactId>
-      <version>4.0.11</version>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>2.3.3</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework.ws</groupId>
-      <artifactId>spring-ws-support</artifactId>
-      <version>4.0.7</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web-services</artifactId>
+      <version>3.2.3</version>
     </dependency>
-    <dependency>
-      <groupId>jakarta.xml.ws</groupId>
-      <artifactId>jakarta.xml.ws-api</artifactId>
-      <version>4.0.2</version>
-    </dependency>
-    <!--    <dependency>-->
-<!--      <groupId>org.springframework.boot</groupId>-->
-<!--      <artifactId>spring-boot-starter-web-services</artifactId>-->
-<!--      <version>3.2.3</version>-->
-<!--    </dependency>-->
 <!--    <dependency>-->
 <!--      <groupId>jakarta.xml.bind</groupId>-->
 <!--      <artifactId>jakarta.xml.bind-api</artifactId>-->
@@ -341,26 +338,47 @@
           </execution>
         </executions>
       </plugin>
+<!--      <plugin>-->
+<!--        <groupId>com.sun.xml.ws</groupId>-->
+<!--        <artifactId>jaxws-maven-plugin</artifactId>-->
+<!--        <version>3.0.0</version>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <goals>-->
+<!--              <goal>wsimport</goal>-->
+<!--            </goals>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--        <configuration>-->
+<!--          <packageName>io.mosip.certify.wsdl</packageName>-->
+<!--          <wsdlDirectory>${project.basedir}/src/main/resources</wsdlDirectory>-->
+<!--          <wsdlFiles>-->
+<!--            <wsdlFile>public-countries.wsdl</wsdlFile>-->
+<!--          </wsdlFiles>-->
+<!--          <sourceDestDir>${project.build.sourceDirectory}</sourceDestDir>-->
+<!--          <keep>true</keep>-->
+<!--          <extension>true</extension>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
       <plugin>
-        <groupId>com.sun.xml.ws</groupId>
-        <artifactId>jaxws-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <groupId>org.jvnet.jaxb2.maven2</groupId>
+        <artifactId>maven-jaxb2-plugin</artifactId>
+        <version>0.15.3</version>
         <executions>
           <execution>
             <goals>
-              <goal>wsimport</goal>
+              <goal>generate</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <packageName>io.mosip.certify.wsdl</packageName>
-          <wsdlDirectory>${project.basedir}/src/main/resources</wsdlDirectory>
-          <wsdlFiles>
-            <wsdlFile>public-countries.wsdl</wsdlFile>
-          </wsdlFiles>
-          <sourceDestDir>${project.build.sourceDirectory}</sourceDestDir>
-          <keep>true</keep>
-          <extension>true</extension>
+          <generatePackage>io.mosip.certify.wsdl</generatePackage>
+          <generateDirectory>${project.basedir}/src/main/java</generateDirectory>
+          <schemaDirectory>${project.basedir}/src/main/resources</schemaDirectory>
+          <schemaIncludes>
+            <include>*.wsdl</include>
+            <include>*.xsd</include>
+          </schemaIncludes>
         </configuration>
       </plugin>
     </plugins>
