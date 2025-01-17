@@ -4,7 +4,7 @@
 
   <groupId>io.mosip.certify</groupId>
   <artifactId>soap-dataprovider-plugin</artifactId>
-  <version>0.3.1-SNAPSHOT</version>
+  <version>0.3.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>soap-dataprovider-plugin</name>
@@ -49,78 +49,21 @@
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>io.mosip.certify</groupId>
       <artifactId>certify-core</artifactId>
       <version>0.10.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>5.11.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <version>6.1.4</version>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>2.0.12</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>jakarta.persistence</groupId>-->
-<!--      <artifactId>jakarta.persistence-api</artifactId>-->
-<!--      <version>3.1.0</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>jakarta.xml.ws</groupId>-->
-<!--      <artifactId>jakarta.xml.ws-api</artifactId>-->
-<!--      <version>4.0.2</version>-->
-<!--    </dependency>-->
     <dependency>
-      <groupId>org.springframework.ws</groupId>
-      <artifactId>spring-ws-core</artifactId>
-      <version>4.0.11</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web-services</artifactId>
+      <version>3.2.3</version>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.ws</groupId>
-      <artifactId>spring-ws-support</artifactId>
-      <version>4.0.7</version>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.xml.ws</groupId>
-      <artifactId>jakarta.xml.ws-api</artifactId>
-      <version>4.0.2</version>
-    </dependency>
-    <!--    <dependency>-->
-<!--      <groupId>org.springframework.boot</groupId>-->
-<!--      <artifactId>spring-boot-starter-web-services</artifactId>-->
-<!--      <version>3.2.3</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>jakarta.xml.bind</groupId>-->
-<!--      <artifactId>jakarta.xml.bind-api</artifactId>-->
-<!--      <version>4.0.0</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>org.glassfish.jaxb</groupId>-->
-<!--      <artifactId>jaxb-runtime</artifactId>-->
-<!--      <version>4.0.5</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>com.sun.xml.ws</groupId>-->
-<!--      <artifactId>jaxws-rt</artifactId>-->
-<!--      <version>3.0.0</version>-->
-<!--    </dependency>-->
   </dependencies>
 
   <repositories>
@@ -138,6 +81,15 @@
       <name>MavenCentral</name>
       <layout>default</layout>
       <url>https://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>danubetech</id>
+      <name>DanubetechCentral</name>
+      <layout>default</layout>
+      <url>https://repo.danubetech.com/repository/maven-releases/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -342,26 +294,30 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.sun.xml.ws</groupId>
-        <artifactId>jaxws-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.jvnet.jaxb</groupId>
+        <artifactId>jaxb-maven-plugin</artifactId>
+        <version>4.0.0</version>
         <executions>
           <execution>
+            <id>schema-generate</id>
             <goals>
-              <goal>wsimport</goal>
+              <goal>generate</goal>
             </goals>
+            <configuration>
+              <schemaLanguage>WSDL</schemaLanguage>
+              <generatePackage>io.mosip.certify.wsdl</generatePackage>
+              <schemaDirectory>src/main/wsdl</schemaDirectory>
+              <generateDirectory>${project.basedir}/src/main/java</generateDirectory>
+              <schemaIncludes>
+                <include>*.wsdl</include>
+              </schemaIncludes>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <packageName>io.mosip.certify.wsdl</packageName>
-          <wsdlDirectory>${project.basedir}/src/main/resources</wsdlDirectory>
-          <wsdlFiles>
-            <wsdlFile>public-countries.wsdl</wsdlFile>
-          </wsdlFiles>
-          <sourceDestDir>${project.build.sourceDirectory}</sourceDestDir>
-          <keep>true</keep>
-          <extension>true</extension>
-        </configuration>
       </plugin>
     </plugins>
   </build>
