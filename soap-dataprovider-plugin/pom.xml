@@ -309,7 +309,7 @@
             </goals>
             <configuration>
               <schemaLanguage>WSDL</schemaLanguage>
-              <generatePackage>io.mosip.certify.wsdl</generatePackage>
+              <generatePackage>io.mosip.certify.gen</generatePackage>
               <schemaDirectory>src/main/wsdl</schemaDirectory>
               <generateDirectory>${project.basedir}/src/main/java</generateDirectory>
               <schemaIncludes>

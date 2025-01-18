@@ -33,6 +33,6 @@ target/
 .mvn/
 .project/
 *.DS_Store
-*.META-INF
-*.io/mosip/certify/wsdl/
+META-INF/
+gen/
 

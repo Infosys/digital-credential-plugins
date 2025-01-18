@@ -1,7 +1,7 @@
 package io.mosip.certify.soapdataprovider.integration.service;
 
-import io.mosip.certify.wsdl.NumberToDollars;
-import io.mosip.certify.wsdl.NumberToDollarsResponse;
+import io.mosip.certify.gen.NumberToDollars;
+import io.mosip.certify.gen.NumberToDollarsResponse;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;

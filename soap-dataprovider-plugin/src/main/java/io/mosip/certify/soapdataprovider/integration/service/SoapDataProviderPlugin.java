@@ -2,7 +2,6 @@ package io.mosip.certify.soapdataprovider.integration.service;
 
 import io.mosip.certify.api.exception.DataProviderExchangeException;
 import io.mosip.certify.api.spi.DataProviderPlugin;
-import io.mosip.certify.wsdl.NumberToDollarsResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
