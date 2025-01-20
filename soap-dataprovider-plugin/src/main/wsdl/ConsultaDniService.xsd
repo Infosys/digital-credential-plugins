@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI (http://jaxws.java.net). RI's version is
 JAX-WS RI 2.3.0-b170407.2038 svnrevision#2eaca54d17a59d265c6fe886b7fd0027836c766c. -->
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-           xmlns="loan" targetNamespace="loan" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xsd:schema xmlns:ns0="http://endpoint.wsconsultadni.reniec.gob.pe/" xmlns:xsd="http://
+www.w3.org/2001/XMLSchema"
+targetNamespace="http://endpoint.wsconsultadni.reniec.gob.pe/">
 <xsd:complexType name="peticionActualizarCredencial">
 <xsd:sequence>
 <xsd:element name="previouscredential" type="xsd:string"
@@ -9,7 +10,7 @@ minOccurs="0"/>
 <xsd:element name="newcredential" type="xsd:string"
 minOccurs="0"/>
 <xsd:element name="nuDni" type="xsd:string" minOccurs="0"/> <xsd:element
-name="nuRuc" type="xsd:string" minOccurs="0"/> </xsd:sequence>
+name="nuRuc" type="xsd:string" minOccurs="0"/> </xsd: sequence>
 </xsd:complexType>
 <xsd:complexType name="queryrequest">
 <xsd:sequence>
@@ -29,13 +30,14 @@ minOccurs="0"/>
 <xsd:complexType name="credentialUpdateresult">
 <xsd:sequence>
 <xsd:element name="coResult" type="xsd:string" minOccurs="0"/> <xsd:element
-name="result" type="xsd:string" minOccurs="0"/> </xsd:sequence>
+name="result" type="xsd:string" minOccurs="0"/> </xsd: sequence>
 </xsd:complexType>
 <xsd:complexType name="QueryResult">
 <xsd:sequence>
-<xsd:element name="coResult" type="xsd:string" minOccurs="0"/>
-<xsd:element name="result" type="xsd:string" minOccurs="0"/>
-<xsd:element name="PersonData" type="persondata" minOccurs="0"/>
+<xsd:element name="coResult" type="xsd:string" minOccurs="0"/> <xsd:element
+name="result" type="xsd:string" minOccurs="0"/> <xsd:element name="PersonData"
+type="ns0:PersonData"
+minOccurs="0"/>
 </xsd:sequence>
 </xsd:complexType>
 <xsd:complexType name="persondata">
