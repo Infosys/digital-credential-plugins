@@ -298,26 +298,26 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.jvnet.jaxb</groupId>
-        <artifactId>jaxb-maven-plugin</artifactId>
-        <version>4.0.0</version>
+        <groupId>com.sun.xml.ws</groupId>
+        <artifactId>jaxws-maven-plugin</artifactId>
+        <version>3.0.0</version>
         <executions>
           <execution>
-            <id>schema-generate</id>
             <goals>
-              <goal>generate</goal>
+              <goal>wsimport</goal>
             </goals>
-            <configuration>
-              <schemaLanguage>WSDL</schemaLanguage>
-              <generatePackage>io.mosip.certify.gen</generatePackage>
-              <schemaDirectory>src/main/wsdl</schemaDirectory>
-              <generateDirectory>${project.basedir}/src/main/java</generateDirectory>
-              <schemaIncludes>
-                <include>*.wsdl</include>
-              </schemaIncludes>
-            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <packageName>io.mosip.certify.gen</packageName>
+          <wsdlDirectory>${project.basedir}/src/main/wsdl</wsdlDirectory>
+          <wsdlFiles>
+            <wsdlFile>NumberConversion.wsdl</wsdlFile>
+          </wsdlFiles>
+          <sourceDestDir>${project.build.sourceDirectory}</sourceDestDir>
+          <keep>true</keep>
+          <extension>true</extension>
+        </configuration>
       </plugin>
     </plugins>
   </build>

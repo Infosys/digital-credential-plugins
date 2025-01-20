@@ -14,7 +14,7 @@ public class NumberConversionClient extends WebServiceGatewaySupport {
     public NumberConversionClient() {
         setDefaultUri("https://www.dataaccess.com/webservicesserver/NumberConversion.wso");
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setContextPath("com.example.springwsdemo.gen");
+        marshaller.setContextPath("io.mosip.certify.gen");
         setMarshaller(marshaller);
         setUnmarshaller(marshaller);
     }
