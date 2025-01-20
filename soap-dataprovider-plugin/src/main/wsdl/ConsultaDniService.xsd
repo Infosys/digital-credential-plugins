@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI (http://jaxws.java.net). RI's version is
+JAX-WS RI 2.3.0-b170407.2038 svnrevision#2eaca54d17a59d265c6fe886b7fd0027836c766c. -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+           xmlns="loan" targetNamespace="loan" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xsd:complexType name="peticionActualizarCredencial">
+<xsd:sequence>
+<xsd:element name="previouscredential" type="xsd:string"
+minOccurs="0"/>
+<xsd:element name="newcredential" type="xsd:string"
+minOccurs="0"/>
+<xsd:element name="nuDni" type="xsd:string" minOccurs="0"/> <xsd:element
+name="nuRuc" type="xsd:string" minOccurs="0"/> </xsd:sequence>
+</xsd:complexType>
+<xsd:complexType name="queryrequest">
+<xsd:sequence>
+<xsd:element name="nuDniConsulta" type="xsd:string"
+minOccurs="0"/>
+<xsd:element name="nuUserID" type="xsd:string" minOccurs="0"/> <xsd:element
+name="nuUserDri" type="xsd:string" minOccurs="0"/> <xsd:element name="password"
+type="xsd:string" minOccurs="0"/> </xsd:sequence>
+</xsd:complexType>
+<xsd:complexType name="requestCertificateConsultation">
+<xsd:sequence>
+<xsd:element name="accessToken" type="xsd:string" minOccurs="0"/> <xsd:element
+name="nuDniConsulta" type="xsd:string"
+minOccurs="0"/>
+<xsd:element name="nuRucUsuario" type="xsd:string" minOccurs="0"/> </xsd:sequence>
+</xsd:complexType>
+<xsd:complexType name="credentialUpdateresult">
+<xsd:sequence>
+<xsd:element name="coResult" type="xsd:string" minOccurs="0"/> <xsd:element
+name="result" type="xsd:string" minOccurs="0"/> </xsd:sequence>
+</xsd:complexType>
+<xsd:complexType name="QueryResult">
+<xsd:sequence>
+<xsd:element name="coResult" type="xsd:string" minOccurs="0"/>
+<xsd:element name="result" type="xsd:string" minOccurs="0"/>
+<xsd:element name="PersonData" type="persondata" minOccurs="0"/>
+</xsd:sequence>
+</xsd:complexType>
+<xsd:complexType name="persondata">
+<xsd:sequence>
+<xsd:element name="dni" type="xsd:string" minOccurs="0"/> <xsd:element
+name="prenames" type="xsd:string" minOccurs="0"/> <xsd:element
+name="firstLastName" type="xsd:string"
+minOccurs="0"/>
+<xsd:element name="surnameMarried" type="xsd:string"
+minOccurs="0"/>
+<xsd:element name="secondLastName" type="xsd:string"
+minOccurs="0"/>
+<xsd:element name="BirthDate" type="xsd:string"
+minOccurs="0"/>
+<xsd:element name="genre" type="xsd:string" minOccurs="0"/>
+<xsd:element name="CivilStatus" type="xsd:string" minOccurs="0"/>
+<xsd:element name="constraint" type="xsd:string" minOccurs="0"/> </xsd:sequence>
+</xsd:complexType>
+</xsd:schema>
