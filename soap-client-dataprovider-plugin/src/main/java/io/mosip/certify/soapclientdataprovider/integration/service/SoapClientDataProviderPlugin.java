@@ -2,11 +2,13 @@ package io.mosip.certify.soapclientdataprovider.integration.service;
 
 import io.mosip.certify.api.exception.DataProviderExchangeException;
 import io.mosip.certify.api.spi.DataProviderPlugin;
-import io.mosip.certify.soapclientdataprovider.integration.dto.DatosPersona;
-import io.mosip.certify.soapclientdataprovider.integration.dto.ResponseReturn;
+import io.mosip.certify.soapclientdataprovider.integration.dto.request.ConsultaArg;
+import io.mosip.certify.soapclientdataprovider.integration.dto.response.DatosPersona;
+import io.mosip.certify.soapclientdataprovider.integration.dto.response.ResponseReturn;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -19,12 +21,27 @@ public class SoapClientDataProviderPlugin implements DataProviderPlugin {
     @Autowired
     private ConsultaDniService consultaDniService;
 
+    @Value("${mosip.certify.peru-id.data-provider-plugin.nu-dni-usuario}")
+    private String nuDniUsuario;
+
+    @Value("${mosip.certify.peru-id.data-provider-plugin.nu-ruc-usuario}")
+    private String nuRucUsuario;
+
+    @Value("${mosip.certify.peru-id.data-provider-plugin.password}")
+    private String password;
+
 
     @Override
     public JSONObject fetchData(Map<String, Object> identityDetails) throws DataProviderExchangeException {
-        JSONObject jsonObject = new JSONObject();
         try {
-            ResponseReturn responseReturn = consultaDniService.getConsultarResponse();
+            String nuConsultaDni = (String) identityDetails.get("sub");
+            ConsultaArg arg = new ConsultaArg();
+            arg.setNuDniConsulta("06794000");
+            arg.setNuDniUsuario(nuDniUsuario);
+            arg.setNuRucUsuario(nuRucUsuario);
+            arg.setPassword(password);
+            JSONObject jsonObject = new JSONObject();
+            ResponseReturn responseReturn = consultaDniService.getConsultarResponse(arg);
             log.info("co result: " + responseReturn.getCoResultado());
             log.info("de result: " + responseReturn.getDeResultado());
             if(!responseReturn.getCoResultado().equals("0000")) {

@@ -1,5 +1,5 @@
 
-package io.mosip.certify.soapclientdataprovider.integration.dto;
+package io.mosip.certify.soapclientdataprovider.integration.dto.response;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;

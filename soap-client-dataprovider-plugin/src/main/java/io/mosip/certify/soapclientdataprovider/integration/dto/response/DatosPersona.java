@@ -1,5 +1,5 @@
 
-package io.mosip.certify.soapclientdataprovider.integration.dto;
+package io.mosip.certify.soapclientdataprovider.integration.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;

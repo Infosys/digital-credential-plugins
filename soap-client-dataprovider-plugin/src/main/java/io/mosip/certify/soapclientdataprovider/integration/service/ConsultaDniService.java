@@ -1,14 +1,20 @@
 package io.mosip.certify.soapclientdataprovider.integration.service;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import io.mosip.certify.soapclientdataprovider.integration.dto.DatosPersona;
-import io.mosip.certify.soapclientdataprovider.integration.dto.Envelope;
-import io.mosip.certify.soapclientdataprovider.integration.dto.ResponseReturn;
+import io.mosip.certify.soapclientdataprovider.integration.dto.request.ConsultaArg;
+import io.mosip.certify.soapclientdataprovider.integration.dto.request.Consultar;
+import io.mosip.certify.soapclientdataprovider.integration.dto.request.RequestBody;
+import io.mosip.certify.soapclientdataprovider.integration.dto.request.RequestEnvelope;
+import io.mosip.certify.soapclientdataprovider.integration.dto.response.Envelope;
+import io.mosip.certify.soapclientdataprovider.integration.dto.response.ResponseReturn;
+import io.mosip.certify.util.SoapUtil;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -17,11 +23,13 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class ConsultaDniService {
 
-    public ResponseReturn getConsultarResponse() throws Exception {
+    public ResponseReturn getConsultarResponse(ConsultaArg consultaArg) throws Exception {
         try {
+
+
             // SOAP Endpoint and Request Body
             String endpointUrl = "http://65.1.93.129/consultadnie/ConsultaDniService";
-            String soapRequest = createSoapRequest();
+            String soapRequest = SoapUtil.buildSoapRequest(consultaArg);
             // Send SOAP request and get response
             String soapResponse = sendSOAPRequest(endpointUrl, soapRequest);
 
