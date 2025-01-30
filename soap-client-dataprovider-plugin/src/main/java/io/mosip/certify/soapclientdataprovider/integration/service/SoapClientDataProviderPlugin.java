@@ -2,8 +2,8 @@ package io.mosip.certify.soapclientdataprovider.integration.service;
 
 import io.mosip.certify.api.exception.DataProviderExchangeException;
 import io.mosip.certify.api.spi.DataProviderPlugin;
-import io.mosip.certify.gen.DatosPersona;
-import io.mosip.certify.gen.ResultadoConsulta;
+import io.mosip.certify.soapclientdataprovider.integration.dto.DatosPersona;
+import io.mosip.certify.soapclientdataprovider.integration.dto.ResponseReturn;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,29 +24,30 @@ public class SoapClientDataProviderPlugin implements DataProviderPlugin {
     public JSONObject fetchData(Map<String, Object> identityDetails) throws DataProviderExchangeException {
         JSONObject jsonObject = new JSONObject();
         try {
-            String nuDniConsulta = (String) identityDetails.get("nuDniConsulta");
-            String nuDniUsuario = (String) identityDetails.get("nuDniUsuario");
-            String nuRucUsuario = (String) identityDetails.get("nuRucUsuario");
-            String password = (String) identityDetails.get("password");
-            ResultadoConsulta consultResult = consultaDniService.consultarDni(nuDniConsulta, nuDniUsuario, nuRucUsuario, password);
+            ResponseReturn responseReturn = consultaDniService.getConsultarResponse();
+            log.info("co result: " + responseReturn.getCoResultado());
+            log.info("de result: " + responseReturn.getDeResultado());
+            if(!responseReturn.getCoResultado().equals("0000")) {
+                throw new Exception("INVALID_DNI");
+            }
 
-            if(consultResult.getDatosPersona() != null) {
-                DatosPersona datosPersona = consultResult.getDatosPersona();
+            if(responseReturn.getDatosPersona() != null) {
+                DatosPersona datosPersona = responseReturn.getDatosPersona();
                 jsonObject.put("dni", datosPersona.getDni());
-                jsonObject.put("prenombres", datosPersona);
-                jsonObject.put("primerApellido", datosPersona);
-                jsonObject.put("apellidoCasada", datosPersona);
-                jsonObject.put("segundoApellido", datosPersona);
-                jsonObject.put("fechaNacimiento", datosPersona);
-                jsonObject.put("genero", datosPersona);
-                jsonObject.put("estadoCivil", datosPersona);
-                jsonObject.put("restriccion", datosPersona);
+                jsonObject.put("prenombres", datosPersona.getPrenombres());
+                jsonObject.put("primerApellido", datosPersona.getPrimerApellido());
+                jsonObject.put("apellidoCasada", datosPersona.getApellidoCasada());
+                jsonObject.put("segundoApellido", datosPersona.getSegundoApellido());
+                jsonObject.put("fechaNacimiento", datosPersona.getFechaNacimiento());
+                jsonObject.put("genero", datosPersona.getGenero());
+                jsonObject.put("estadoCivil", datosPersona.getEstadoCivil());
+                jsonObject.put("restriccion", datosPersona.getRestriccion());
 
                 return jsonObject;
             }
         } catch (Exception e) {
             log.error("Failed to fetch response from soap resource.");
-            throw new DataProviderExchangeException("ERROR_FETCHING_DATA_FROM_SOAP_RESOURCE");
+            throw new DataProviderExchangeException("INVALID_CONSULTA_DNI");
         }
         throw new DataProviderExchangeException("FAILED_TO_FETCH_DATA");
     }
