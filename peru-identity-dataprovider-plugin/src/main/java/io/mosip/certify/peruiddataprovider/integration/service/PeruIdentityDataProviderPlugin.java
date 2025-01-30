@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@ConditionalOnProperty(value = "mosip.certify.integration.data-provider-plugin", havingValue = "SoapClientDataProviderPlugin")
+@ConditionalOnProperty(value = "mosip.certify.integration.data-provider-plugin", havingValue = "PeruIdentityDataProviderPlugin")
 @Component
 @Slf4j
-public class PeruDataProviderCertifyPlugin implements DataProviderPlugin {
+public class PeruIdentityDataProviderPlugin implements DataProviderPlugin {
     @Autowired
     private ConsultaDniService consultaDniService;
 

@@ -6,6 +6,7 @@ import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseEnve
 import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseReturn;
 import io.mosip.certify.util.SoapUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.OutputStream;
@@ -61,21 +62,5 @@ public class ConsultaDniService {
         } else {
             throw new RuntimeException("HTTP error code: " + connection.getResponseCode());
         }
-    }
-
-    private String createSoapRequest() {
-        String header = "<soapenv:Header/>";
-
-        String nuDniConsulta = "<nuDniConsulta>06794000</nuDniConsulta>";
-        String nuDniUsuario = "<nuDniUsuario>06794000</nuDniUsuario>";
-        String nuRucUsuario = "<nuRucUsuario>20295613620</nuRucUsuario>";
-        String password = "<password>06794000</password>";
-
-        String arg0 = "<arg0>" + nuDniConsulta + nuDniUsuario + nuRucUsuario + password + "</arg0>";
-        String consultar = "<end:consultar>" + arg0 + "</end:consultar>";
-        String body = "<soapenv:Body>" + consultar + "</soapenv:Body>";
-        String envelope = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:end=\"http://endpoint.wsconsultadni.reniec.gob.pe/\">";
-
-        return envelope + header + body + "</soapenv:Envelope>";
     }
 }
