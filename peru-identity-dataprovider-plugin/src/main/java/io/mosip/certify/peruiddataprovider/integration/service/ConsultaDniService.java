@@ -24,7 +24,7 @@ public class ConsultaDniService {
             // SOAP Request Body
             String soapRequest = SoapUtil.buildSoapRequest(consultaArg);
             // Send SOAP request and get response
-            String soapResponse = sendSOAPRequest(ENDPOINT_URI, soapRequest);
+            String soapResponse = SoapUtil.sendSOAPRequest(ENDPOINT_URI, soapRequest);
 
             try {
                 XmlMapper xmlMapper = new XmlMapper();
@@ -43,24 +43,5 @@ public class ConsultaDniService {
         }
 
         throw new Exception("FAILED_TO_GET_RESPONSE");
-    }
-
-    private String sendSOAPRequest(String endpointUrl, String soapRequest) throws Exception {
-        URL url = new URL(endpointUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "text/xml; charset=utf-8");
-        connection.setDoOutput(true);
-        // Send SOAP request
-        try (OutputStream outputStream = connection.getOutputStream()) {
-            outputStream.write(soapRequest.getBytes());
-            outputStream.flush();
-        }
-        // Read the response
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            return new String(connection.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        } else {
-            throw new RuntimeException("HTTP error code: " + connection.getResponseCode());
-        }
     }
 }
