@@ -1,5 +1,5 @@
 
-package io.mosip.certify.soapclientdataprovider.integration.dto.response;
+package io.mosip.certify.peruiddataprovider.integration.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -54,6 +54,16 @@ public class DatosPersona {
     protected String estadoCivil;
     @JacksonXmlProperty
     protected String restriccion;
+    @JacksonXmlProperty
+    protected String foto;
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
 
     /**
      * Gets the value of the dni property.

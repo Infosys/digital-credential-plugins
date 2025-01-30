@@ -1,9 +1,9 @@
 package io.mosip.certify.util;
 
-import io.mosip.certify.soapclientdataprovider.integration.dto.request.ConsultaArg;
-import io.mosip.certify.soapclientdataprovider.integration.dto.request.Consultar;
-import io.mosip.certify.soapclientdataprovider.integration.dto.request.RequestBody;
-import io.mosip.certify.soapclientdataprovider.integration.dto.request.RequestEnvelope;
+import io.mosip.certify.peruiddataprovider.integration.dto.request.ConsultaArg;
+import io.mosip.certify.peruiddataprovider.integration.dto.request.Consultar;
+import io.mosip.certify.peruiddataprovider.integration.dto.request.RequestBody;
+import io.mosip.certify.peruiddataprovider.integration.dto.request.RequestEnvelope;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 

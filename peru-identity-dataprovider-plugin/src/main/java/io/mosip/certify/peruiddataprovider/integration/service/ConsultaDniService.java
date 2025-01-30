@@ -1,20 +1,14 @@
-package io.mosip.certify.soapclientdataprovider.integration.service;
+package io.mosip.certify.peruiddataprovider.integration.service;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import io.mosip.certify.soapclientdataprovider.integration.dto.request.ConsultaArg;
-import io.mosip.certify.soapclientdataprovider.integration.dto.request.Consultar;
-import io.mosip.certify.soapclientdataprovider.integration.dto.request.RequestBody;
-import io.mosip.certify.soapclientdataprovider.integration.dto.request.RequestEnvelope;
-import io.mosip.certify.soapclientdataprovider.integration.dto.response.Envelope;
-import io.mosip.certify.soapclientdataprovider.integration.dto.response.ResponseReturn;
+import io.mosip.certify.peruiddataprovider.integration.dto.request.ConsultaArg;
+import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseEnvelope;
+import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseReturn;
 import io.mosip.certify.util.SoapUtil;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Marshaller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -22,22 +16,23 @@ import java.nio.charset.StandardCharsets;
 @Service
 @Slf4j
 public class ConsultaDniService {
+    final String ENDPOINT_URI = "http://65.1.93.129/consultadnie/ConsultaDniService";
 
     public ResponseReturn getConsultarResponse(ConsultaArg consultaArg) throws Exception {
         try {
-
-
-            // SOAP Endpoint and Request Body
-            String endpointUrl = "http://65.1.93.129/consultadnie/ConsultaDniService";
+            // SOAP Request Body
             String soapRequest = SoapUtil.buildSoapRequest(consultaArg);
             // Send SOAP request and get response
-            String soapResponse = sendSOAPRequest(endpointUrl, soapRequest);
+            String soapResponse = sendSOAPRequest(ENDPOINT_URI, soapRequest);
 
             try {
                 XmlMapper xmlMapper = new XmlMapper();
-                Envelope resp = xmlMapper.readValue(soapResponse, Envelope.class);
+                ResponseEnvelope responseEnvelope = xmlMapper.readValue(soapResponse, ResponseEnvelope.class);
 
-                return resp.getBody().getConsultarResponse().getResponseReturn();
+                if(responseEnvelope != null && responseEnvelope.getBody() != null && responseEnvelope.getBody().getConsultarResponse() != null) {
+                    return responseEnvelope.getBody().getConsultarResponse().getResponseReturn();
+                }
+
             } catch (Exception e) {
                 log.info("Error during deserialization", e);
                 throw new Exception("ERROR_DURING_DESERIALIZATION");

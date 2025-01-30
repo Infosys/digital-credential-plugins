@@ -1,4 +1,4 @@
-package io.mosip.certify.soapclientdataprovider.integration.dto.request;
+package io.mosip.certify.peruiddataprovider.integration.dto.request;
 
 import jakarta.xml.bind.annotation.*;
 

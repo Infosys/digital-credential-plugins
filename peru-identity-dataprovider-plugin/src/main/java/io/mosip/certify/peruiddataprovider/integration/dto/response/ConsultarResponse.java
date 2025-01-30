@@ -1,4 +1,4 @@
-package io.mosip.certify.soapclientdataprovider.integration.dto.response;
+package io.mosip.certify.peruiddataprovider.integration.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;

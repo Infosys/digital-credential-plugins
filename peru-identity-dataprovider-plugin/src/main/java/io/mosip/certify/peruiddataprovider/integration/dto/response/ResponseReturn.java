@@ -1,9 +1,9 @@
-package io.mosip.certify.soapclientdataprovider.integration.dto.response;
+package io.mosip.certify.peruiddataprovider.integration.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import io.mosip.certify.soapclientdataprovider.integration.dto.response.DatosPersona;
+import io.mosip.certify.peruiddataprovider.integration.dto.response.DatosPersona;
 
 @JacksonXmlRootElement(localName = "return")
 @JsonIgnoreProperties(ignoreUnknown = true)
