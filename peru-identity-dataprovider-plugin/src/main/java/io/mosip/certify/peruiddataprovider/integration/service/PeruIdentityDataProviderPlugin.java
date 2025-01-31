@@ -30,6 +30,9 @@ public class PeruIdentityDataProviderPlugin implements DataProviderPlugin {
     @Value("${mosip.certify.peru-id.data-provider-plugin.password}")
     private String password;
 
+    @Value("${mosip.certify.peru-id.data-provider-plugin.endpoint-uri}")
+    private String endpointUri;
+
 
     @Override
     public JSONObject fetchData(Map<String, Object> identityDetails) throws DataProviderExchangeException {
@@ -41,7 +44,7 @@ public class PeruIdentityDataProviderPlugin implements DataProviderPlugin {
             arg.setNuRucUsuario(nuRucUsuario);
             arg.setPassword(password);
             JSONObject jsonObject = new JSONObject();
-            ResponseReturn responseReturn = consultaDniService.getConsultarResponse(arg);
+            ResponseReturn responseReturn = consultaDniService.getConsultarResponse(arg, endpointUri);
             log.info("co result: " + responseReturn.getCoResultado());
             log.info("de result: " + responseReturn.getDeResultado());
             if(!responseReturn.getCoResultado().equals("0000")) {

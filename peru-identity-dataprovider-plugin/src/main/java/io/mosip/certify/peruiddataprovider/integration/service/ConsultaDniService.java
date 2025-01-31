@@ -6,25 +6,18 @@ import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseEnve
 import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseReturn;
 import io.mosip.certify.util.SoapUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 @Service
 @Slf4j
 public class ConsultaDniService {
-    final String ENDPOINT_URI = "http://65.1.93.129/consultadnie/ConsultaDniService";
 
-    public ResponseReturn getConsultarResponse(ConsultaArg consultaArg) throws Exception {
+    public ResponseReturn getConsultarResponse(ConsultaArg consultaArg, String endpointUri) throws Exception {
         try {
             // SOAP Request Body
             String soapRequest = SoapUtil.buildSoapRequest(consultaArg);
             // Send SOAP request and get response
-            String soapResponse = SoapUtil.sendSOAPRequest(ENDPOINT_URI, soapRequest);
+            String soapResponse = SoapUtil.sendSOAPRequest(endpointUri, soapRequest);
 
             try {
                 XmlMapper xmlMapper = new XmlMapper();

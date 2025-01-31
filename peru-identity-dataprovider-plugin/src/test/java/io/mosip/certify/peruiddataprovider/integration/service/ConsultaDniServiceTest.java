@@ -1,10 +1,6 @@
 package io.mosip.certify.peruiddataprovider.integration.service;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.mosip.certify.peruiddataprovider.integration.dto.request.ConsultaArg;
-import io.mosip.certify.peruiddataprovider.integration.dto.response.ConsultarResponse;
-import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseBody;
-import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseEnvelope;
 import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseReturn;
 import io.mosip.certify.util.SoapUtil;
 import org.junit.Before;
@@ -46,6 +42,8 @@ public class ConsultaDniServiceTest {
                     "   </soap:Body>\n" +
                     "</soap:Envelope>";
 
+    private static final String endpointUri = "https://example.com";
+
     @InjectMocks
     private ConsultaDniService consultaDniService;
 
@@ -57,7 +55,6 @@ public class ConsultaDniServiceTest {
     @Test
     public void getConsultarResponse_Success() throws Exception {
         // Arrange
-//        ConsultaDniService service = new ConsultaDniService();
         ConsultaArg consultaArg = new ConsultaArg();
         consultaArg.setNuDniConsulta("12345678");
         consultaArg.setNuDniUsuario("12345678");
@@ -77,7 +74,7 @@ public class ConsultaDniServiceTest {
                     .thenReturn(SAMPLE_SOAP_RESPONSE);
 
             // Act
-            ResponseReturn result = consultaDniService.getConsultarResponse(consultaArg);
+            ResponseReturn result = consultaDniService.getConsultarResponse(consultaArg, endpointUri);
 
             // Assert
             assertNotNull(result);
@@ -104,7 +101,7 @@ public class ConsultaDniServiceTest {
 
             // Act & Assert
             Exception exception = assertThrows(Exception.class, () -> {
-                consultaDniService.getConsultarResponse(consultaArg);
+                consultaDniService.getConsultarResponse(consultaArg, endpointUri);
             });
             assertEquals("FAILED_TO_GET_RESPONSE", exception.getMessage());
         }
@@ -125,7 +122,7 @@ public class ConsultaDniServiceTest {
 
             // Act & Assert
             Exception exception = assertThrows(Exception.class, () -> {
-                consultaDniService.getConsultarResponse(consultaArg);
+                consultaDniService.getConsultarResponse(consultaArg, endpointUri);
             });
             assertEquals("FAILED_TO_GET_RESPONSE", exception.getMessage());
         }
@@ -142,7 +139,7 @@ public class ConsultaDniServiceTest {
 
             // Act & Assert
             Exception exception = assertThrows(Exception.class, () -> {
-                consultaDniService.getConsultarResponse(consultaArg);
+                consultaDniService.getConsultarResponse(consultaArg, endpointUri);
             });
             assertEquals("FAILED_TO_GET_RESPONSE", exception.getMessage());
         }

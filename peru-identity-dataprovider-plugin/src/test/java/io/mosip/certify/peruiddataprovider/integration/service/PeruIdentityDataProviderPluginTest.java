@@ -32,12 +32,14 @@ public class PeruIdentityDataProviderPluginTest {
     private static final String NU_DNI_USUARIO = "testDniUsuario";
     private static final String NU_RUC_USUARIO = "testRucUsuario";
     private static final String PASSWORD = "testPassword";
+    private static final String endpointUri = "https://example.com";
 
     @Before
     public void setUp() {
         ReflectionTestUtils.setField(plugin, "nuDniUsuario", NU_DNI_USUARIO);
         ReflectionTestUtils.setField(plugin, "nuRucUsuario", NU_RUC_USUARIO);
         ReflectionTestUtils.setField(plugin, "password", PASSWORD);
+        ReflectionTestUtils.setField(plugin, "endpointUri", endpointUri);
     }
 
     @Test
@@ -64,7 +66,7 @@ public class PeruIdentityDataProviderPluginTest {
 
         responseReturn.setDatosPersona(datosPersona);
 
-        when(consultaDniService.getConsultarResponse(any(ConsultaArg.class)))
+        when(consultaDniService.getConsultarResponse(any(ConsultaArg.class), anyString()))
                 .thenReturn(responseReturn);
 
         // Act
@@ -93,7 +95,7 @@ public class PeruIdentityDataProviderPluginTest {
         responseReturn.setCoResultado("9999");
         responseReturn.setDeResultado("Error occurred");
 
-        when(consultaDniService.getConsultarResponse(any(ConsultaArg.class)))
+        when(consultaDniService.getConsultarResponse(any(ConsultaArg.class), anyString()))
                 .thenReturn(responseReturn);
 
         // Act & Assert
@@ -115,7 +117,7 @@ public class PeruIdentityDataProviderPluginTest {
         responseReturn.setDeResultado("Success");
         responseReturn.setDatosPersona(null);
 
-        when(consultaDniService.getConsultarResponse(any(ConsultaArg.class)))
+        when(consultaDniService.getConsultarResponse(any(ConsultaArg.class), anyString()))
                 .thenReturn(responseReturn);
 
         // Act & Assert

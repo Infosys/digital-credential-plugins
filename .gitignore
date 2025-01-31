@@ -33,4 +33,3 @@ target/
 .mvn/
 .project/
 *.DS_Store
-gen/

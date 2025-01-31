@@ -7,7 +7,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 @JacksonXmlRootElement(localName = "Body")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResponseBody {
-    @JacksonXmlProperty(localName = "consultarResponse", namespace = "http://localhost:80/")
+    @JacksonXmlProperty(localName = "consultarResponse", namespace = "http://endpoint.wsconsultadni.reniec.gob.pe/")
     private ConsultarResponse consultarResponse;
 
     public ConsultarResponse getConsultarResponse() { return consultarResponse; }
