@@ -1,6 +1,9 @@
 package io.mosip.certify.peruiddataprovider.integration.service;
 
 import io.mosip.certify.peruiddataprovider.integration.dto.request.ConsultaArg;
+import io.mosip.certify.peruiddataprovider.integration.dto.response.ConsultarResponse;
+import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseBody;
+import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseEnvelope;
 import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseReturn;
 import io.mosip.certify.util.SoapUtil;
 import org.junit.Before;
@@ -61,9 +64,16 @@ public class ConsultaDniServiceTest {
         consultaArg.setNuRucUsuario("12345678");
         consultaArg.setPassword("12345678");
 
+        ResponseEnvelope responseEnvelope = new ResponseEnvelope();
+        ResponseBody responseBody = new ResponseBody();
+        ConsultarResponse consultarResponse = new ConsultarResponse();
+
         ResponseReturn expectedResponse = new ResponseReturn();
         expectedResponse.setCoResultado("0000");
         expectedResponse.setDeResultado("Success");
+        consultarResponse.setResponseReturn(expectedResponse);
+        responseBody.setConsultarResponse(consultarResponse);
+        responseEnvelope.setResponseBody(responseBody);
 
         try (MockedStatic<SoapUtil> soapUtilMock = Mockito.mockStatic(SoapUtil.class)) {
             // Mock static methods
@@ -72,6 +82,9 @@ public class ConsultaDniServiceTest {
 
             soapUtilMock.when(() -> SoapUtil.sendSOAPRequest(anyString(), anyString()))
                     .thenReturn(SAMPLE_SOAP_RESPONSE);
+
+            soapUtilMock.when(() -> SoapUtil.getResponseEnvelope(anyString()))
+                    .thenReturn(responseEnvelope);
 
             // Act
             ResponseReturn result = consultaDniService.getConsultarResponse(consultaArg, endpointUri);

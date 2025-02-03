@@ -1,17 +1,16 @@
 package io.mosip.certify.peruiddataprovider.integration.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseBody;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
-@JacksonXmlRootElement(localName = "Envelope", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
-@JsonIgnoreProperties(ignoreUnknown = true)
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "Envelope", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
 public class ResponseEnvelope {
+    @XmlElement(name = "Body", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
+    private ResponseBody responseBody;
 
-    @JacksonXmlProperty(localName = "Body")
-    private ResponseBody body;
-
-    public ResponseBody getBody() { return body; }
-    public void setBody(ResponseBody body) { this.body = body; }
+    public ResponseBody getResponseBody() { return responseBody; }
+    public void setResponseBody(ResponseBody value) { this.responseBody = value; }
 }

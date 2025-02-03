@@ -45,8 +45,6 @@ public class PeruIdentityDataProviderPlugin implements DataProviderPlugin {
             arg.setPassword(password);
             JSONObject jsonObject = new JSONObject();
             ResponseReturn responseReturn = consultaDniService.getConsultarResponse(arg, endpointUri);
-            log.info("co result: " + responseReturn.getCoResultado());
-            log.info("de result: " + responseReturn.getDeResultado());
             if(!responseReturn.getCoResultado().equals("0000")) {
                 throw new Exception(responseReturn.getDeResultado());
             }

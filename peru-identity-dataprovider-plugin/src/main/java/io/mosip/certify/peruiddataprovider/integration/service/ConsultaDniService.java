@@ -1,12 +1,15 @@
 package io.mosip.certify.peruiddataprovider.integration.service;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.mosip.certify.peruiddataprovider.integration.dto.request.ConsultaArg;
 import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseEnvelope;
 import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseReturn;
 import io.mosip.certify.util.SoapUtil;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Unmarshaller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.io.StringReader;
 
 @Service
 @Slf4j
@@ -20,11 +23,10 @@ public class ConsultaDniService {
             String soapResponse = SoapUtil.sendSOAPRequest(endpointUri, soapRequest);
 
             try {
-                XmlMapper xmlMapper = new XmlMapper();
-                ResponseEnvelope responseEnvelope = xmlMapper.readValue(soapResponse, ResponseEnvelope.class);
+                ResponseEnvelope responseEnvelope = SoapUtil.getResponseEnvelope(soapResponse);
 
-                if(responseEnvelope != null && responseEnvelope.getBody() != null && responseEnvelope.getBody().getConsultarResponse() != null) {
-                    return responseEnvelope.getBody().getConsultarResponse().getResponseReturn();
+                if(responseEnvelope != null && responseEnvelope.getResponseBody() != null && responseEnvelope.getResponseBody().getConsultarResponse() != null) {
+                    return responseEnvelope.getResponseBody().getConsultarResponse().getResponseReturn();
                 }
 
             } catch (Exception e) {

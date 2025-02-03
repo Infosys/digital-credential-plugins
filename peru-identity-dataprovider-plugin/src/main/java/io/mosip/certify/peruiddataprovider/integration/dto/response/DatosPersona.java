@@ -1,9 +1,9 @@
 
 package io.mosip.certify.peruiddataprovider.integration.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 
 
 /**
@@ -33,37 +33,28 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
  * 
  * 
  */
-@JacksonXmlRootElement(localName = "datosPersona")
-@JsonIgnoreProperties(ignoreUnknown = true)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DatosPersona {
-    @JacksonXmlProperty
+    @XmlElement
     protected String dni;
-    @JacksonXmlProperty
+    @XmlElement
     protected String prenombres;
-    @JacksonXmlProperty
+    @XmlElement
     protected String primerApellido;
-    @JacksonXmlProperty
+    @XmlElement
     protected String apellidoCasada;
-    @JacksonXmlProperty
+    @XmlElement
     protected String segundoApellido;
-    @JacksonXmlProperty
+    @XmlElement
     protected String fechaNacimiento;
-    @JacksonXmlProperty
+    @XmlElement
     protected String genero;
-    @JacksonXmlProperty
+    @XmlElement
     protected String estadoCivil;
-    @JacksonXmlProperty
+    @XmlElement
     protected String restriccion;
-    @JacksonXmlProperty
-    protected String foto;
-
-    public String getFoto() {
-        return foto;
-    }
-
-    public void setFoto(String foto) {
-        this.foto = foto;
-    }
+    @XmlElement
+    protected  String foto;
 
     /**
      * Gets the value of the dni property.
@@ -281,4 +272,11 @@ public class DatosPersona {
         this.restriccion = value;
     }
 
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
 }

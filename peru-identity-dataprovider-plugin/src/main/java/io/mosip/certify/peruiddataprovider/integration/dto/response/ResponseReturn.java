@@ -1,21 +1,35 @@
 package io.mosip.certify.peruiddataprovider.integration.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import io.mosip.certify.peruiddataprovider.integration.dto.response.DatosPersona;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 
-@JacksonXmlRootElement(localName = "return")
-@JsonIgnoreProperties(ignoreUnknown = true)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ResponseReturn {
-    @JacksonXmlProperty(localName = "coResultado")
+    @XmlElement(name = "coResultado")
     private String coResultado;
 
-    @JacksonXmlProperty(localName = "deResultado")
+    @XmlElement(name = "deResultado")
     private String deResultado;
 
-    @JacksonXmlProperty(localName = "datosPersona")
+    @XmlElement(name = "datosPersona")
     private DatosPersona datosPersona;
+
+    public String getCoResultado() {
+        return coResultado;
+    }
+
+    public void setCoResultado(String coResultado) {
+        this.coResultado = coResultado;
+    }
+
+    public String getDeResultado() {
+        return deResultado;
+    }
+
+    public void setDeResultado(String deResultado) {
+        this.deResultado = deResultado;
+    }
 
     public DatosPersona getDatosPersona() {
         return datosPersona;
@@ -24,10 +38,4 @@ public class ResponseReturn {
     public void setDatosPersona(DatosPersona datosPersona) {
         this.datosPersona = datosPersona;
     }
-
-    public String getCoResultado() { return coResultado; }
-    public void setCoResultado(String coResultado) { this.coResultado = coResultado; }
-
-    public String getDeResultado() { return deResultado; }
-    public void setDeResultado(String deResultado) { this.deResultado = deResultado; }
 }

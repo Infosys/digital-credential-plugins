@@ -1,15 +1,21 @@
 package io.mosip.certify.peruiddataprovider.integration.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
-@JacksonXmlRootElement(localName = "Body")
-@JsonIgnoreProperties(ignoreUnknown = true)
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "Body", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
 public class ResponseBody {
-    @JacksonXmlProperty(localName = "consultarResponse", namespace = "http://endpoint.wsconsultadni.reniec.gob.pe/")
+    @XmlElement(name = "consultarResponse", namespace = "http://endpoint.wsconsultadni.reniec.gob.pe/")
     private ConsultarResponse consultarResponse;
 
-    public ConsultarResponse getConsultarResponse() { return consultarResponse; }
-    public void setConsultarResponse(ConsultarResponse consultarResponse) { this.consultarResponse = consultarResponse; }
+    public ConsultarResponse getConsultarResponse() {
+        return consultarResponse;
+    }
+
+    public void setConsultarResponse(ConsultarResponse consultarResponse) {
+        this.consultarResponse = consultarResponse;
+    }
 }

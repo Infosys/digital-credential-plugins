@@ -4,10 +4,14 @@ import io.mosip.certify.peruiddataprovider.integration.dto.request.ConsultaArg;
 import io.mosip.certify.peruiddataprovider.integration.dto.request.Consultar;
 import io.mosip.certify.peruiddataprovider.integration.dto.request.RequestBody;
 import io.mosip.certify.peruiddataprovider.integration.dto.request.RequestEnvelope;
+import io.mosip.certify.peruiddataprovider.integration.dto.response.ResponseEnvelope;
 import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -53,5 +57,11 @@ public class SoapUtil {
         } else {
             throw new RuntimeException("HTTP error code: " + connection.getResponseCode());
         }
+    }
+
+    public static ResponseEnvelope getResponseEnvelope(String soapResponse) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(ResponseEnvelope.class);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+        return (ResponseEnvelope) unmarshaller.unmarshal(new StringReader(soapResponse));
     }
 }

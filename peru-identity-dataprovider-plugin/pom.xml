@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>peru-identity-dataprovider-plugin</name>
-  <url>https://github.com/mosip/digital-credential-plugins</url>
+  <url>https://github.com/peru-id/digital-credential-plugins</url>
 
   <licenses>
     <license>
@@ -17,17 +17,17 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/mosip/digital-credential-plugins.git</connection>
-    <developerConnection>scm:git:ssh://github.com:mosip/digital-credential-plugins.git</developerConnection>
-    <url>https://github.com/mosip/digital-credential-plugins</url>
+    <connection>scm:git:git://github.com/peru-id/digital-credential-plugins.git</connection>
+    <developerConnection>scm:git:ssh://github.com:peru-id/digital-credential-plugins.git</developerConnection>
+    <url>https://github.com/peru-id/digital-credential-plugins</url>
     <tag>HEAD</tag>
   </scm>
   <developers>
     <developer>
-      <name>MOSIP</name>
+      <name>Mosip</name>
       <email>mosip.emailnotifier@gmail.com</email>
       <organization>io.mosip</organization>
-      <organizationUrl>https://www.mosip.io</organizationUrl>
+      <organizationUrl>https://github.com/peru-id/digital-credential-plugins</organizationUrl>
     </developer>
   </developers>
 
@@ -51,7 +51,7 @@
     <dependency>
       <groupId>io.mosip.certify</groupId>
       <artifactId>certify-core</artifactId>
-      <version>0.10.0</version>
+      <version>0.10.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -59,11 +59,6 @@
       <artifactId>slf4j-api</artifactId>
       <version>2.0.12</version>
     </dependency>
-      <dependency>
-          <groupId>com.fasterxml.jackson.dataformat</groupId>
-          <artifactId>jackson-dataformat-xml</artifactId>
-          <version>2.15.4</version>
-      </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -98,15 +93,6 @@
       <name>MavenCentral</name>
       <layout>default</layout>
       <url>https://repo1.maven.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>danubetech</id>
-      <name>DanubetechCentral</name>
-      <layout>default</layout>
-      <url>https://repo.danubetech.com/repository/maven-releases/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>

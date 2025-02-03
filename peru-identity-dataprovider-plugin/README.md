@@ -33,10 +33,10 @@
       ```
     - When the authentication is completed through KBI, then the `sub` field of the claim contains the value of `nuConsultaDni` which is used to fetch the identity data from the resource url.
 
-2. For referring the table creation and template insertion, see the sql scripts under db_scripts/mosip_certify/ddl folder of inji_certify: [db_scripts](https://github.com/peru-id/inji-certify/tree/master/db_scripts/mosip_certify/ddl)
+2. For referring the table creation and template insertion, see the sql scripts under db_scripts/mosip_certify/ddl folder of inji_certify: [db_scripts](https://github.com/peru-id/inji-certify/tree/peru-0.10.x/db_scripts/mosip_certify/ddl)
 
 3. inji-config changes:
-    - Refer to the properties file in [inji-config](https://github.com/peru-id/inji-config) that corresponds to the postgres plugin implementation.
+    - Refer to the properties file in [inji-config](https://github.com/peru-id/inji-config) that corresponds to the peru-id data provider plugin implementation.
       [Certify Reniec Properties](https://github.com/peru-id/inji-config/blob/peru-0.5.x/certify-reniec-identity.properties)
     - The value for the property `mosip.certify.integration.data-provider-plugin` must be set to `PeruIdentityDataProviderPlugin`
     - Refer to the below properties for setting the `nuDniUsuario`, `nuRucUsuario`, `password` and `endpointUri` values:
@@ -71,7 +71,7 @@
 3. Deserialization of SOAP response:
    - Refer to the `response` directory.
    - Root class is `ResponseEnvelope`.
-   - The response xml is then deserialized into `ResponseEnvelope` object using a XmlMapper.
+   - The response xml is then deserialized into `ResponseEnvelope` object using a JAXBContext unmarshalling.
    - The `ResponseReturn` class contains the response parameters as response code, response message and the identity details as the `DatosPersona` object.
 
 4. PeruIdentityDataProviderPlugin
