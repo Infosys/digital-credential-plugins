@@ -59,7 +59,7 @@ public class PeruIdentityDataProviderPlugin implements DataProviderPlugin {
                 jsonObject.put("gender", datosPersona.getGenero());
                 jsonObject.put("maritalStatus", datosPersona.getEstadoCivil());
                 jsonObject.put("restriction", datosPersona.getRestriccion());
-                jsonObject.put("face", datosPersona.getFoto());
+                jsonObject.put("face", "data:image/jpeg;base64," + datosPersona.getFoto());
                 return jsonObject;
             }
         } catch (Exception e) {
