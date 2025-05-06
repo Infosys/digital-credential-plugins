@@ -101,6 +101,9 @@ public class MockVCIssuancePlugin implements VCIssuancePlugin {
 
 	public static final String CERTIFY_SERVICE_APP_ID = "CERTIFY_SERVICE";
 
+	@Autowired
+	RestTemplate restTemplate;
+
 	@Override
 	public VCResult<JsonLDObject> getVerifiableCredentialWithLinkedDataProof(VCRequestDto vcRequestDto, String holderId,
 																			 Map<String, Object> identityDetails) throws VCIExchangeException {
@@ -170,7 +173,7 @@ public class MockVCIssuancePlugin implements VCIssuancePlugin {
 	private Map<String, Object> getIndividualData(OIDCTransaction transaction){
 		String individualId = getIndividualId(transaction);
 		if (individualId!=null){
-			Map<String, Object> res = new RestTemplate().getForObject(
+			Map<String, Object> res = restTemplate.getForObject(
 					getIdentityUrl+"/"+individualId,
 					HashMap.class);
 			res = (Map<String, Object>)res.get("response");
