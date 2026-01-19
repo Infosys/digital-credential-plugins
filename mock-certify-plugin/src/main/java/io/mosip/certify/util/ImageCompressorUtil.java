@@ -1,11 +1,15 @@
 package io.mosip.certify.util;
 
 import io.mosip.biometrics.util.ConvertRequestDto;
+import io.mosip.biometrics.util.face.FaceBDIR;
+import io.mosip.biometrics.util.face.FaceDecoder;
 import io.mosip.biometrics.util.face.FaceEncoder;
 import io.mosip.certify.mock.integration.service.ImageCompressorServiceImpl;
 import io.mosip.image.compressor.sdk.constant.ResponseStatus;
 import io.mosip.image.compressor.sdk.exceptions.SDKException;
 import io.mosip.image.compressor.sdk.impl.ImageCompressorSDKV2;
+import io.mosip.image.compressor.sdk.service.ImageCompressionService;
+import io.mosip.image.compressor.sdk.utils.Util;
 import io.mosip.kernel.biometrics.constant.BiometricType;
 import io.mosip.kernel.biometrics.constant.ProcessedLevelType;
 import io.mosip.kernel.biometrics.constant.PurposeType;
@@ -28,9 +32,6 @@ public class ImageCompressorUtil {
 
     private final Environment env;
 
-    @Autowired
-    private ImageCompressorSDKV2 imageCompressorSDKV2;
-
     public ImageCompressorUtil(Environment env) {
         this.env = env;
     }
@@ -46,13 +47,14 @@ public class ImageCompressorUtil {
         return service.doResizeAndCompress(imageBytes);
     }
 
-    public Response<BiometricRecord> getCompressesImageResponse(byte[] imageBytes) {
+    public Response<BiometricRecord> getCompressedImageResponse(byte[] imageBytes) {
         BiometricRecord sample = buildBiometricRecord(imageBytes);
         List<BiometricType> modalitiesToExtract = List.of(BiometricType.FACE);
         Map<String, String> flags = Map.of();
 
-        Response<BiometricRecord> response = imageCompressorSDKV2.extractTemplate(sample, modalitiesToExtract, flags);
-        return response;
+        ImageCompressionService imageCompressionService = new ImageCompressionService(env, sample, modalitiesToExtract, flags);
+
+        return imageCompressionService.getExtractTemplateInfo();
     }
 
     public BiometricRecord buildBiometricRecord(byte[] imageData) {
@@ -87,7 +89,7 @@ public class ImageCompressorUtil {
         return biometricRecord;
     }
 
-    public byte[] doFaceConversion(String purpose, byte[] imageData) {
+    public byte[] convertFromImageToISO(String purpose, byte[] imageData) {
         ResponseStatus responseStatus = null;
         try {
             ConvertRequestDto requestDto = new ConvertRequestDto();
@@ -109,5 +111,97 @@ public class ImageCompressorUtil {
             throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
         }
         throw new SDKException(ResponseStatus.UNKNOWN_ERROR + "", "null");
+    }
+
+    public byte[] convertFromISOToImage(String purpose, byte[] isoImage) {
+        ResponseStatus responseStatus = null;
+        try {
+            ConvertRequestDto requestDto = new ConvertRequestDto();
+            requestDto.setModality("Face");
+            requestDto.setPurpose(purpose);
+            requestDto.setVersion("ISO19794_5_2011");
+
+            // Convert Face ISO/IEC 19794-5: 2011 to JP2000
+            if (isoImage != null) {
+                requestDto.setImageType(0);// 0 = jp2, 1 = wsq
+                requestDto.setInputBytes(isoImage);
+
+                // get image quality = 40 by default
+                return FaceDecoder.convertFaceISOToImageBytes(requestDto);
+            }
+        } catch (Exception ex) {
+            log.error("doFaceConversion::error", ex);
+            responseStatus = ResponseStatus.UNKNOWN_ERROR;
+            throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
+        }
+        throw new SDKException(ResponseStatus.UNKNOWN_ERROR + "", "null");
+    }
+
+    public static byte[] getBirData(BIR bir) {
+        BiometricType biometricType = bir.getBdbInfo().getType().get(0);
+        PurposeType purposeType = bir.getBdbInfo().getPurpose();
+        List<String> bioSubTypeList = bir.getBdbInfo().getSubtype();
+
+        String bioSubType = null;
+        if (bioSubTypeList != null && !bioSubTypeList.isEmpty()) {
+            bioSubType = bioSubTypeList.get(0).trim();
+            if (bioSubTypeList.size() >= 2)
+                bioSubType += " " + bioSubTypeList.get(1).trim();
+        }
+
+        if (isValidBIRParams(bir, biometricType, bioSubType)) {
+            return getBDBData(purposeType, biometricType, bioSubType, bir.getBdb());
+        }
+        throw new SDKException(ResponseStatus.UNKNOWN_ERROR + "", "null");
+    }
+
+    public static boolean isValidBIRParams(BIR segment, BiometricType bioType, String bioSubType) {
+        ResponseStatus responseStatus = null;
+        if (bioType == BiometricType.FACE)
+            return true;
+        else {
+            log.error("isValidBIRParams::BiometricType{} BioSubType{}", bioType, bioSubType);
+            responseStatus = ResponseStatus.MISSING_INPUT;
+            throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
+        }
+    }
+
+    public static byte[] getBDBData(PurposeType purposeType, BiometricType bioType, String bioSubType, byte[] bdbData) {
+        ResponseStatus responseStatus = null;
+
+        if (bdbData != null && bdbData.length != 0) {
+            return getBiometricData(purposeType, bioType, bioSubType, Util.encodeToURLSafeBase64(bdbData));
+        }
+
+        responseStatus = ResponseStatus.BIOMETRIC_NOT_FOUND_IN_CBEFF;
+        throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
+    }
+
+    public static byte[] getBiometricData(PurposeType purposeType, BiometricType bioType, String bioSubType,
+                                       String bdbData) {
+        ResponseStatus responseStatus = null;
+        if (bioType == BiometricType.FACE)
+            return getFaceBdb(purposeType, bioSubType, bdbData);
+        responseStatus = ResponseStatus.INVALID_INPUT;
+        throw new SDKException(responseStatus.getStatusCode() + "", responseStatus.getStatusMessage());
+    }
+
+    public static byte[] getFaceBdb(PurposeType purposeType, String biometricSubType, String bdbData) {
+        ResponseStatus responseStatus = null;
+        try {
+            ConvertRequestDto requestDto = new ConvertRequestDto();
+            requestDto.setModality("Face");
+            requestDto.setVersion("ISO19794_5_2011");
+            byte[] bioData = Util.decodeURLSafeBase64(bdbData);
+            requestDto.setInputBytes(bioData);
+
+            FaceBDIR bdir = FaceDecoder.getFaceBDIR(requestDto);
+            return bdir.getImage();
+        } catch (Exception ex) {
+            log.error("getFaceBdb -- error", ex);
+            responseStatus = ResponseStatus.INVALID_INPUT;
+            throw new SDKException(responseStatus.getStatusCode() + "",
+                    responseStatus.getStatusMessage() + " " + ex.getLocalizedMessage());
+        }
     }
 }

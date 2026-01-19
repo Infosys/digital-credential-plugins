@@ -1,10 +1,14 @@
 package io.mosip.certify.mock.integration.service;
 
 
+import io.mosip.biometrics.util.CommonUtil;
 import io.mosip.certify.api.exception.DataProviderExchangeException;
 import io.mosip.certify.api.spi.DataProviderPlugin;
 import io.mosip.certify.util.CSVReader;
 import io.mosip.certify.util.ImageCompressorUtil;
+import io.mosip.kernel.biometrics.entities.BIR;
+import io.mosip.kernel.biometrics.entities.BiometricRecord;
+import io.mosip.kernel.biometrics.model.Response;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
@@ -18,12 +22,14 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.text.Segment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,11 +92,11 @@ public class MockCSVDataProviderPlugin implements DataProviderPlugin {
             String individualId = (String) identityDetails.get("sub");
             if (individualId != null) {
                 JSONObject jsonRes = csvReader.getJsonObjectByIdentifier(individualId);
-//                if(jsonRes.has("face")) {
-//                    String imageData = jsonRes.getString("face");
-//                    String compressedImageData = compressImageData(imageData);
-//                    jsonRes.put("face", compressedImageData);
-//                }
+                if(jsonRes.has("face")) {
+                    String imageData = jsonRes.getString("face");
+                    String compressedImageData = compressImageData(imageData);
+                    jsonRes.put("face", compressedImageData);
+                }
                 return jsonRes;
             }
         } catch (Exception e) {
@@ -100,18 +106,37 @@ public class MockCSVDataProviderPlugin implements DataProviderPlugin {
         throw new DataProviderExchangeException("No Data Found");
     }
 
-//    private String compressImageData(String imageData) throws DataProviderExchangeException {
-//        try {
-////            byte[] imageBytes = Base64.getUrlDecoder().decode(imageData.getBytes());
-//            byte[] compressedBytes = imageCompressorUtil.compressImage(imageData.getBytes(StandardCharsets.UTF_8));
-////            if (compressedBytes.length > 1024) {
-////                throw new DataProviderExchangeException("FACE_IMAGE_TOO_LARGE", "Compressed image exceeds 1 KB size limit.");
-////            }
-//            return Base64.getEncoder().encodeToString(compressedBytes);
-//        } catch (Exception e) {
-//            log.error("Image compression failed", e);
-//            throw new DataProviderExchangeException("ERROR_COMPRESSING_IMAGE", "Failed to compress image data. Check the image format and other properties.");
-//        }
-//
-//    }
+    private String compressImageData(String imageData) throws DataProviderExchangeException {
+        try {
+            byte[] imageBytes = imageData.getBytes(StandardCharsets.UTF_8);
+            byte[] jp2ImageBytes = CommonUtil.convertJPEGToJP2UsingOpenCV(imageBytes, 50);
+            byte[] compressedBytes = imageCompressorUtil.compressImage(jp2ImageBytes);
+//            if (compressedBytes.length > 1024) {
+//                throw new DataProviderExchangeException("FACE_IMAGE_TOO_LARGE", "Compressed image exceeds 1 KB size limit.");
+//            }
+            byte[] jpegCompressedBytes = CommonUtil.convertJP2ToJPEGBytes(compressedBytes);
+            return new String(jpegCompressedBytes);
+        } catch (Exception e) {
+            log.error("Image compression failed", e);
+            throw new DataProviderExchangeException("ERROR_COMPRESSING_IMAGE", "Failed to compress image data. Check the image format and other properties.");
+        }
+
+    }
+
+    private String compressImageBiometricData(String imageData) throws DataProviderExchangeException {
+        try {
+            byte[] jp2ImageBytes = CommonUtil.convertJPEGToJP2UsingOpenCV(imageData.getBytes(StandardCharsets.UTF_8), 50);
+            byte[] imageBytes = imageCompressorUtil.convertFromImageToISO("REGISTRATION", jp2ImageBytes);
+            Response<BiometricRecord> response = imageCompressorUtil.getCompressedImageResponse(imageBytes);
+            BiometricRecord biometricRecord = response.getResponse();
+            BIR segment = biometricRecord.getSegments().get(0);
+            byte[] compressedBytes =imageCompressorUtil.getBirData(segment);
+
+            return new String(compressedBytes);
+        } catch (Exception e) {
+            log.error("Image compression failed", e);
+            throw new DataProviderExchangeException("ERROR_COMPRESSING_IMAGE", "Failed to compress image data. Check the image format and other properties.");
+        }
+
+    }
 }
