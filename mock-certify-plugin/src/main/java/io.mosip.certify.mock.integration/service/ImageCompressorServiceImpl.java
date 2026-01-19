@@ -1,0 +1,25 @@
+package io.mosip.certify.mock.integration.service;
+
+import io.mosip.image.compressor.sdk.service.ImageCompressionService;
+import io.mosip.kernel.biometrics.constant.BiometricType;
+import io.mosip.kernel.biometrics.entities.BiometricRecord;
+import org.springframework.core.env.Environment;
+
+import java.util.List;
+import java.util.Map;
+
+public class ImageCompressorServiceImpl extends ImageCompressionService {
+
+    public ImageCompressorServiceImpl(Environment env,
+                                         BiometricRecord sample,
+                                         List<BiometricType> modalitiesToExtract,
+                                         Map<String, String> flags) {
+        super(env, sample, modalitiesToExtract, flags);
+    }
+
+    public byte[] doResizeAndCompress(byte[] imageBytes) {
+        return resizeAndCompress(imageBytes);
+    }
+
+
+}
