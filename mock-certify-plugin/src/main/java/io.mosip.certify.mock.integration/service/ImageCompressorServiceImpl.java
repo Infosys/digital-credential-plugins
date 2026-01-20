@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ImageCompressorServiceImpl extends ImageCompressionService {
-
     public ImageCompressorServiceImpl(Environment env,
                                          BiometricRecord sample,
                                          List<BiometricType> modalitiesToExtract,
@@ -20,6 +19,4 @@ public class ImageCompressorServiceImpl extends ImageCompressionService {
     public byte[] doResizeAndCompress(byte[] imageBytes) {
         return resizeAndCompress(imageBytes);
     }
-
-
 }

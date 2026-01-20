@@ -2,6 +2,12 @@ package io.mosip.certify.mock.integration.service;
 
 
 import io.mosip.biometrics.util.CommonUtil;
+import io.mosip.biometrics.util.ConvertRequestDto;
+import io.mosip.biometrics.util.ImageType;
+import io.mosip.biometrics.util.Modality;
+import io.mosip.biometrics.util.face.FaceBDIR;
+import io.mosip.biometrics.util.face.FaceDecoder;
+import io.mosip.biometrics.util.face.ImageDataType;
 import io.mosip.certify.api.exception.DataProviderExchangeException;
 import io.mosip.certify.api.spi.DataProviderPlugin;
 import io.mosip.certify.util.CSVReader;
@@ -11,6 +17,8 @@ import io.mosip.kernel.biometrics.entities.BiometricRecord;
 import io.mosip.kernel.biometrics.model.Response;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.bytedeco.javacpp.Loader;
+import org.bytedeco.opencv.opencv_java;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,21 +30,34 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.text.Segment;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @ConditionalOnProperty(value = "mosip.certify.integration.data-provider-plugin", havingValue = "MockCSVDataProviderPlugin")
 @Component
 @Slf4j
 public class MockCSVDataProviderPlugin implements DataProviderPlugin {
+    static {
+        /**
+         * load OpenCV library nu.pattern.OpenCV.loadShared();
+         * System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME);
+         */
+        /**
+         * In Java >= 12 it is no longer possible to use addLibraryPath, which modifies
+         * the ClassLoader's static usr_paths field. There does not seem to be any way
+         * around this so we fall back to loadLocally() and return.
+         */
+        nu.pattern.OpenCV.loadLocally();
+        Loader.load(opencv_java.class);
+        System.setProperty("OPENCV_IO_ENABLE_JASPER", "1");
+        log.info("OPENCV_IO_ENABLE_JASPER: {}", System.getenv("OPENCV_IO_ENABLE_JASPER"));
+    }
     @Value("${mosip.certify.mock.vciplugin.id-uri:https://example.com/}")
     private String id;
     @Autowired
@@ -108,14 +129,13 @@ public class MockCSVDataProviderPlugin implements DataProviderPlugin {
 
     private String compressImageData(String imageData) throws DataProviderExchangeException {
         try {
-            byte[] imageBytes = imageData.getBytes(StandardCharsets.UTF_8);
-            byte[] jp2ImageBytes = CommonUtil.convertJPEGToJP2UsingOpenCV(imageBytes, 50);
-            byte[] compressedBytes = imageCompressorUtil.compressImage(jp2ImageBytes);
+            byte[] imageBytes = decodeDataUri(imageData);
+            byte[] compressedBytes = imageCompressorUtil.compressImage(imageBytes);
 //            if (compressedBytes.length > 1024) {
 //                throw new DataProviderExchangeException("FACE_IMAGE_TOO_LARGE", "Compressed image exceeds 1 KB size limit.");
 //            }
-            byte[] jpegCompressedBytes = CommonUtil.convertJP2ToJPEGBytes(compressedBytes);
-            return new String(jpegCompressedBytes);
+            byte[] jpegCompressedBytes = CommonUtil.convertJP2ToPNGBytes(compressedBytes);
+            return Base64.getEncoder().encodeToString(jpegCompressedBytes);
         } catch (Exception e) {
             log.error("Image compression failed", e);
             throw new DataProviderExchangeException("ERROR_COMPRESSING_IMAGE", "Failed to compress image data. Check the image format and other properties.");
@@ -123,20 +143,13 @@ public class MockCSVDataProviderPlugin implements DataProviderPlugin {
 
     }
 
-    private String compressImageBiometricData(String imageData) throws DataProviderExchangeException {
-        try {
-            byte[] jp2ImageBytes = CommonUtil.convertJPEGToJP2UsingOpenCV(imageData.getBytes(StandardCharsets.UTF_8), 50);
-            byte[] imageBytes = imageCompressorUtil.convertFromImageToISO("REGISTRATION", jp2ImageBytes);
-            Response<BiometricRecord> response = imageCompressorUtil.getCompressedImageResponse(imageBytes);
-            BiometricRecord biometricRecord = response.getResponse();
-            BIR segment = biometricRecord.getSegments().get(0);
-            byte[] compressedBytes =imageCompressorUtil.getBirData(segment);
-
-            return new String(compressedBytes);
-        } catch (Exception e) {
-            log.error("Image compression failed", e);
-            throw new DataProviderExchangeException("ERROR_COMPRESSING_IMAGE", "Failed to compress image data. Check the image format and other properties.");
+    public static byte[] decodeDataUri(String dataUri) {
+        if (dataUri == null) throw new IllegalArgumentException("dataUri is null");
+        String base64Part = dataUri;
+        int commaIdx = dataUri.indexOf(',');
+        if (commaIdx != -1) {
+            base64Part = dataUri.substring(commaIdx + 1);
         }
-
+        return Base64.getDecoder().decode(base64Part);
     }
 }
