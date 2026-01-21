@@ -115,9 +115,9 @@ public class MockCSVDataProviderPlugin implements DataProviderPlugin {
                 JSONObject jsonRes = csvReader.getJsonObjectByIdentifier(individualId);
                 if(jsonRes.has("face")) {
                     String imageData = jsonRes.getString("face");
-//                    String compressedImageData = compressImageData(imageData);
-                    String compressedImageData = extractAndCompressImage(imageData);
-                    jsonRes.put("face", compressedImageData);
+                    String compressedImageData = imageCompressorUtil.extractAndCompressImage(imageData);
+                    jsonRes.put("face", imageData);
+                    jsonRes.put("compressedFace", compressedImageData);
                 }
                 return jsonRes;
             }
@@ -127,97 +127,5 @@ public class MockCSVDataProviderPlugin implements DataProviderPlugin {
         }
         throw new DataProviderExchangeException("No Data Found");
     }
-
-    private String compressImageData(String imageData) throws DataProviderExchangeException {
-        try {
-            byte[] imageBytes = decodeDataUri(imageData);
-            byte[] compressedBytes = imageCompressorUtil.compressImage(imageBytes);
-//            if (compressedBytes.length > 1024) {
-//                throw new DataProviderExchangeException("FACE_IMAGE_TOO_LARGE", "Compressed image exceeds 1 KB size limit.");
-//            }
-            byte[] jpegCompressedBytes = CommonUtil.convertJP2ToPNGBytes(compressedBytes);
-            return Base64.getEncoder().encodeToString(jpegCompressedBytes);
-        } catch (Exception e) {
-            log.error("Image compression failed", e);
-            throw new DataProviderExchangeException("ERROR_COMPRESSING_IMAGE", "Failed to compress image data. Check the image format and other properties.");
-        }
-
-    }
-
-    public static byte[] decodeDataUri(String dataUri) {
-        if (dataUri == null) throw new IllegalArgumentException("dataUri is null");
-        String base64Part = dataUri;
-        int commaIdx = dataUri.indexOf(',');
-        if (commaIdx != -1) {
-            base64Part = dataUri.substring(commaIdx + 1);
-        }
-        return Base64.getDecoder().decode(base64Part);
-    }
-
-
-
-
-    private String extractAndCompressImage(String imageData) throws DataProviderExchangeException {
-        try {
-            // --- Require Data URI with prefix only ---
-            if (imageData == null || imageData.isBlank() || !imageData.startsWith("data:") || !imageData.contains(";") 
-                    || !imageData.contains(",")) {
-                throw new IllegalArgumentException("Invalid image format. Upload a proper image type.");
-            }
-
-            // Basic structure guards
-            int colon = imageData.indexOf(':');   // should be 4 ("data:")
-            int semi  = imageData.indexOf(';');
-            int comma = imageData.indexOf(',');
-            if (colon < 0 || semi < 0 || comma < 0 || colon >= semi || semi >= comma) {
-                throw new IllegalArgumentException("Invalid image format. Upload a proper image type.");
-            }
-
-            // Extract MIME (e.g., image/png, image/jpeg)
-            String mimeType = imageData.substring(colon + 1, semi).trim();
-
-            // Extract the format (e.g., "png", "jpeg", "jpg"); default "" if malformed
-            int slash = mimeType.indexOf('/');
-            String formatName = (slash >= 0 && slash < mimeType.length() - 1)
-                    ? mimeType.substring(slash + 1).toLowerCase()
-                    : "";
-
-            // Fallback rule: anything other than png/jpeg/jpg → force JPEG
-            boolean isPng  = "png".equals(formatName);
-            boolean usePng = isPng;         // only true when explicitly PNG
-
-            // Extract Base64 payload and decode
-            final String base64Data = imageData.substring(comma + 1).trim();
-            final byte[] inputBytes = Base64.getDecoder().decode(base64Data);
-
-            // Compress (assumed JP2 output)
-            final byte[] jp2Bytes = imageCompressorUtil.compressImage(inputBytes);
-
-            // Convert JP2 → desired output format
-            final byte[] outBytes;
-            final String outMime;
-            if (usePng) {
-                outBytes = CommonUtil.convertJP2ToPNGBytes(jp2Bytes);
-                outMime  = "image/png";
-            } else {
-                outBytes = CommonUtil.convertJP2ToJPEGBytes(jp2Bytes);
-                outMime  = "image/jpeg";
-            }
-
-            // Encode and return as Data URI
-            final String b64 = Base64.getEncoder().encodeToString(outBytes);
-            return "data:" + outMime + ";base64," + b64;
-
-        } catch (IllegalArgumentException iae) {
-            throw new DataProviderExchangeException("INVALID_IMAGE_DATA", iae.getMessage());
-        } catch (Exception e) {
-            log.error("Image compression failed", e);
-            throw new DataProviderExchangeException(
-                    "ERROR_COMPRESSING_IMAGE",
-                    "Failed to compress image data. Check the image format and other properties."
-            );
-        }
-    }
-
 
 }
