@@ -1,51 +1,27 @@
 package io.mosip.certify.util;
 
 import io.mosip.biometrics.util.CommonUtil;
-import io.mosip.biometrics.util.ConvertRequestDto;
-import io.mosip.biometrics.util.face.FaceBDIR;
-import io.mosip.biometrics.util.face.FaceDecoder;
-import io.mosip.biometrics.util.face.FaceEncoder;
 import io.mosip.certify.api.exception.DataProviderExchangeException;
 import io.mosip.certify.mock.integration.service.ImageCompressorServiceImpl;
-import io.mosip.image.compressor.sdk.constant.ResponseStatus;
-import io.mosip.image.compressor.sdk.exceptions.SDKException;
-import io.mosip.image.compressor.sdk.service.ImageCompressionService;
-import io.mosip.image.compressor.sdk.utils.Util;
-import io.mosip.kernel.biometrics.constant.BiometricType;
-import io.mosip.kernel.biometrics.constant.ProcessedLevelType;
-import io.mosip.kernel.biometrics.constant.PurposeType;
-import io.mosip.kernel.biometrics.constant.QualityType;
 import io.mosip.kernel.biometrics.entities.*;
-import io.mosip.kernel.biometrics.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
 public class ImageCompressorUtil {
+    private final ImageCompressorServiceImpl service;
 
-    private final Environment env;
-
-    public ImageCompressorUtil(Environment env) {
-        this.env = env;
+    @Autowired
+    public ImageCompressorUtil(ImageCompressorServiceImpl service) {
+        this.service = service;
     }
 
+
     public byte[] compressImage(byte[] imageBytes) {
-        BiometricRecord sample = new BiometricRecord();
-        List<BiometricType> modalitiesToExtract = List.of(BiometricType.FACE);
-        Map<String, String> flags = Map.of();
-
-        ImageCompressorServiceImpl service =
-                new ImageCompressorServiceImpl(env, sample, modalitiesToExtract, flags);
-
         return service.doResizeAndCompress(imageBytes);
     }
 
@@ -89,7 +65,7 @@ public class ImageCompressorUtil {
             byte[] jp2Bytes;
 
             while (true) {
-                jp2Bytes = compressImage(inputBytes);   // reuse existing method only
+                jp2Bytes = compressImage(inputBytes);
                 attempts++;
 
                 if (jp2Bytes.length <= targetSize) {
@@ -98,7 +74,7 @@ public class ImageCompressorUtil {
                 if (attempts >= maxAttempts) {
                     throw new DataProviderExchangeException(
                             "FACE_IMAGE_TOO_LARGE",
-                            "Unable to compress image to with available compression."
+                            "Unable to compress image with available compression. Check size or quality of the input image."
                     );
                 }
 
