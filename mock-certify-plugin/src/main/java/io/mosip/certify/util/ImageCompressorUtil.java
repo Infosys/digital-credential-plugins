@@ -6,6 +6,7 @@ import io.mosip.certify.mock.integration.service.ImageCompressorServiceImpl;
 import io.mosip.kernel.biometrics.entities.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
@@ -19,6 +20,12 @@ public class ImageCompressorUtil {
     public ImageCompressorUtil(ImageCompressorServiceImpl service) {
         this.service = service;
     }
+
+    @Value("${mosip.certify.image-compressor.image.max-allowed-size:4096}")
+    private int maxAllowedImageSize;
+
+    @Value("${mosip.certify.image-compressor.image.max-retry-attempts:3}")
+    private int maxRetryAttempts;
 
 
     public byte[] compressImage(byte[] imageBytes) {
@@ -59,8 +66,6 @@ public class ImageCompressorUtil {
             byte[] inputBytes = Base64.getDecoder().decode(base64Data);
 
             // Compress (assumed JP2 output)
-            final int targetSize = 4096;   // 4 KB
-            final int maxAttempts = 3;    // safety
             int attempts = 0;
             byte[] jp2Bytes;
 
@@ -68,10 +73,22 @@ public class ImageCompressorUtil {
                 jp2Bytes = compressImage(inputBytes);
                 attempts++;
 
-                if (jp2Bytes.length <= targetSize) {
-                    break;
+                final byte[] outBytes;
+                final String outMime;
+                if (usePng) {
+                    outBytes = CommonUtil.convertJP2ToPNGBytes(jp2Bytes);
+                    outMime  = "image/png";
+                } else {
+                    outBytes = CommonUtil.convertJP2ToJPEGBytes(jp2Bytes);
+                    outMime  = "image/jpeg";
                 }
-                if (attempts >= maxAttempts) {
+
+                if (outBytes.length <= maxAllowedImageSize) {
+                    // Encode and return as Data URI
+                    final String b64 = Base64.getEncoder().encodeToString(outBytes);
+                    return "data:" + outMime + ";base64," + b64;
+                }
+                if (attempts >= maxRetryAttempts) {
                     throw new DataProviderExchangeException(
                             "FACE_IMAGE_TOO_LARGE",
                             "Unable to compress image with available compression. Check size or quality of the input image."
@@ -83,19 +100,19 @@ public class ImageCompressorUtil {
             }
 
             // Convert JP2 → desired output format
-            final byte[] outBytes;
-            final String outMime;
-            if (usePng) {
-                outBytes = CommonUtil.convertJP2ToPNGBytes(jp2Bytes);
-                outMime  = "image/png";
-            } else {
-                outBytes = CommonUtil.convertJP2ToJPEGBytes(jp2Bytes);
-                outMime  = "image/jpeg";
-            }
-
-            // Encode and return as Data URI
-            final String b64 = Base64.getEncoder().encodeToString(outBytes);
-            return "data:" + outMime + ";base64," + b64;
+//            final byte[] outBytes;
+//            final String outMime;
+//            if (usePng) {
+//                outBytes = CommonUtil.convertJP2ToPNGBytes(jp2Bytes);
+//                outMime  = "image/png";
+//            } else {
+//                outBytes = CommonUtil.convertJP2ToJPEGBytes(jp2Bytes);
+//                outMime  = "image/jpeg";
+//            }
+//
+//            // Encode and return as Data URI
+//            final String b64 = Base64.getEncoder().encodeToString(outBytes);
+//            return "data:" + outMime + ";base64," + b64;
 
         } catch (IllegalArgumentException iae) {
             throw new DataProviderExchangeException("INVALID_IMAGE_DATA", iae.getMessage());
