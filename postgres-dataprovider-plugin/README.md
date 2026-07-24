@@ -109,7 +109,7 @@ sequenceDiagram
 3. inji-config changes:
     - Refer to the properties file in [inji-config](https://github.com/inji/inji-config) that corresponds to the postgres plugin implementation.
       [Certify Postgres Land Registry](https://github.com/inji/inji-config/blob/develop/certify-postgres-landregistry.properties)
-    - The value for the property `mosip.certify.integration.data-provider-plugin` must be set to `PostgresDataProviderPlugin`
+    - The value for the property `mosip.certify.integration.data-provider-plugin` must be set to `PostgresDataProviderPlugin` 
     - Refer to the below property for setting the query value against the scope for the credential that is to be issued:
        ```
       mosip.certify.data-provider-plugin.postgres.scope-query-mapping={
