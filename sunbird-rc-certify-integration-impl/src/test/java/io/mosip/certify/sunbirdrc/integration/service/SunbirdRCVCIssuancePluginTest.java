@@ -9,7 +9,9 @@ import io.mosip.certify.api.exception.VCIExchangeException;
 import io.mosip.certify.api.util.ErrorConstants;
 import io.mosip.certify.sunbirdrc.integration.dto.RegistrySearchRequestDto;
 import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,8 +63,10 @@ public class SunbirdRCVCIssuancePluginTest {
     @Before
     public void init(){
         velocityEngine=new VelocityEngine();
-        velocityEngine.setProperty("resource.loader", "class");
-        velocityEngine.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "class");
+        velocityEngine.setProperty("resource.loader.class.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        velocityEngine.setProperty(RuntimeConstants.UBERSPECT_CLASSNAME,
+                org.apache.velocity.util.introspection.SecureUberspector.class.getName());
         template=velocityEngine.getTemplate("InsuranceCredential.json");
 
         credentialTypeTemplatesMap=new HashMap<>();
@@ -532,5 +537,27 @@ public class SunbirdRCVCIssuancePluginTest {
 
         VCResult<JsonLDObject> result= sunbirdRCVCIssuancePlugin.getVerifiableCredentialWithLinkedDataProof(vcRequestDto,"holderId",identityMap);
         Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void testSecureUberspectorBlocked() {
+        VelocityContext context = new VelocityContext();
+        context.put("x", "test");
+        StringWriter writer = new StringWriter();
+        
+        // Test that bare $x.getClass() is allowed (renders class name)
+        String template1 = "#set($result = $x.getClass())$result";
+        velocityEngine.evaluate(context, writer, "test", template1);
+        String result = writer.toString();
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.contains("String"));
+        
+        // Test that $x.getClass().forName(...) is blocked by SecureUberspector
+        writer = new StringWriter();
+        String template2 = "$x.getClass().forName('java.lang.Runtime')";
+        velocityEngine.evaluate(context, writer, "test", template2);
+        String blockedResult = writer.toString();
+        // SecureUberspector blocks the call, so it should remain unresolved (empty or original)
+        Assert.assertTrue(blockedResult.isEmpty() || blockedResult.equals(template2));
     }
 }

@@ -24,6 +24,7 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.URLResourceLoader;
 import org.apache.velocity.tools.generic.DateTool;
+import org.apache.velocity.util.introspection.SecureUberspector;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -118,14 +119,14 @@ public class SunbirdRCVCIssuancePlugin implements VCIssuancePlugin {
                     Charset charset = encoding == null ? StandardCharsets.UTF_8 : Charset.forName(encoding);
                     return new InputStreamReader(inputStream, charset);
                 } catch (IOException e) {
-                    throw new ResourceNotFoundException("Unable to find resource '" + name + "'");
+                    throw new ResourceNotFoundException("Unable to find resource '" + name + "'", e);
                 }
             }
         };
         vEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "url");
         vEngine.setProperty("resource.loader.url.instance", urlResourceLoader);
         vEngine.setProperty(RuntimeConstants.UBERSPECT_CLASSNAME,
-                "org.apache.velocity.util.introspection.SecureUberspector");
+                SecureUberspector.class.getName());
         vEngine.init();
         //Validate all the supported VC
         for (String credentialType : supportedCredentialTypes) {
