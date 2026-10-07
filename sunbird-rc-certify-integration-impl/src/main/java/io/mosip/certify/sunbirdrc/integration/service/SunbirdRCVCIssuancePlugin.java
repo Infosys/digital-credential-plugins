@@ -24,6 +24,7 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.URLResourceLoader;
 import org.apache.velocity.tools.generic.DateTool;
+import org.apache.velocity.util.introspection.SecureUberspector;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,9 +40,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,18 +111,22 @@ public class SunbirdRCVCIssuancePlugin implements VCIssuancePlugin {
         vEngine = new VelocityEngine();
         URLResourceLoader urlResourceLoader = new URLResourceLoader() {
             @Override
-            public InputStream getResourceStream(String name) throws ResourceNotFoundException {
+            public Reader getResourceReader(String name, String encoding) throws ResourceNotFoundException {
                 try {
                     URL url = new URL(name);
                     URLConnection connection = url.openConnection();
-                    return connection.getInputStream();
+                    InputStream inputStream = connection.getInputStream();
+                    Charset charset = encoding == null ? StandardCharsets.UTF_8 : Charset.forName(encoding);
+                    return new InputStreamReader(inputStream, charset);
                 } catch (IOException e) {
-                    throw new ResourceNotFoundException("Unable to find resource '" + name + "'");
+                    throw new ResourceNotFoundException("Unable to find resource '" + name + "'", e);
                 }
             }
         };
-        vEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "url");
-        vEngine.setProperty("url.resource.loader.instance", urlResourceLoader);
+        vEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "url");
+        vEngine.setProperty("resource.loader.url.instance", urlResourceLoader);
+        vEngine.setProperty(RuntimeConstants.UBERSPECT_CLASSNAME,
+                SecureUberspector.class.getName());
         vEngine.init();
         //Validate all the supported VC
         for (String credentialType : supportedCredentialTypes) {
