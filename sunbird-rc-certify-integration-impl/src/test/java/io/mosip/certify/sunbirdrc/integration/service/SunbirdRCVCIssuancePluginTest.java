@@ -9,7 +9,10 @@ import io.mosip.certify.api.exception.VCIExchangeException;
 import io.mosip.certify.api.util.ErrorConstants;
 import io.mosip.certify.sunbirdrc.integration.dto.RegistrySearchRequestDto;
 import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.util.introspection.SecureUberspector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +30,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,8 +64,10 @@ public class SunbirdRCVCIssuancePluginTest {
     @Before
     public void init(){
         velocityEngine=new VelocityEngine();
-        velocityEngine.setProperty("resource.loader", "class");
-        velocityEngine.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADERS, "class");
+        velocityEngine.setProperty("resource.loader.class.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        velocityEngine.setProperty(RuntimeConstants.UBERSPECT_CLASSNAME,
+                SecureUberspector.class.getName());
         template=velocityEngine.getTemplate("InsuranceCredential.json");
 
         credentialTypeTemplatesMap=new HashMap<>();
@@ -532,5 +538,27 @@ public class SunbirdRCVCIssuancePluginTest {
 
         VCResult<JsonLDObject> result= sunbirdRCVCIssuancePlugin.getVerifiableCredentialWithLinkedDataProof(vcRequestDto,"holderId",identityMap);
         Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void initialize_EnablesSecureUberspector_BlocksReflection() throws VCIExchangeException {
+        URL credentialUrl = getClass().getClassLoader().getResource("InsuranceCredential.json");
+        Mockito.when(environment.getProperty(Mockito.anyString())).thenReturn(credentialUrl.toString());
+        sunbirdRCVCIssuancePlugin.initialize();
+
+        VelocityEngine pluginEngine =
+                (VelocityEngine) ReflectionTestUtils.getField(sunbirdRCVCIssuancePlugin, "vEngine");
+
+        VelocityContext context = new VelocityContext();
+        context.put("x", "test");
+
+        StringWriter allowed = new StringWriter();
+        pluginEngine.evaluate(context, allowed, "test", "$x.getClass()");
+        Assert.assertEquals("class java.lang.String", allowed.toString());
+
+        String escape = "$x.getClass().forName('java.lang.Runtime')";
+        StringWriter blocked = new StringWriter();
+        pluginEngine.evaluate(context, blocked, "test", escape);
+        Assert.assertEquals(escape, blocked.toString());
     }
 }
