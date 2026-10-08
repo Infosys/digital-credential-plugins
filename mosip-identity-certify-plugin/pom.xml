@@ -130,12 +130,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>info.weboftrust</groupId>
             <artifactId>ld-signatures-java</artifactId>
             <version>1.0.0</version>
@@ -182,6 +176,13 @@
                     <groupId>org.bytedeco</groupId>
                     <artifactId>opencv-platform</artifactId>
                 </exclusion>
+                <!-- commons-lang3 is provided by Certify (3.17.0, needed by Velocity 2.4.1).
+                     The assembly plugin resolves runtime deps without the provided override,
+                     so the 3.13.0 pulled in here would otherwise be bundled. -->
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -200,6 +201,15 @@
             <artifactId>opencv-platform</artifactId>
             <version>4.9.0-1.5.10</version>
             <scope>compile</scope>
+        </dependency>
+        <!-- Provided by Certify at runtime (Velocity 2.4.1 needs commons-lang3 >= 3.17.0).
+             Keep it out of the jar-with-dependencies so an older transitive copy
+             does not shadow Certify's version via loader.path. -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.17.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
